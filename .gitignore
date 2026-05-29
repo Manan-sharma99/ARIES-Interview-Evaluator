@@ -3,3 +3,8 @@ __pycache__/
 .env
 venv/
 temp_recording.wav
+data/
+models/
+*.wav
+.env
+__pycache__/
