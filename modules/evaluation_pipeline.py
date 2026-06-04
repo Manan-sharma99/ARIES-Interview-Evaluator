@@ -103,7 +103,7 @@ def run_evaluation(
     emotion = "neutral"
     if audio_path and os.path.exists(audio_path):
         try:
-            from modules.emotion_model import predict_emotion
+            from interview_evaluator.modules.emotion_model_legacy import predict_emotion
             emotion = predict_emotion(audio_path) or "neutral"
         except Exception:
             emotion = "neutral"   # mic / model failure

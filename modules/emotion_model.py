@@ -1,311 +1,1607 @@
 """
-Speech Emotion Recognition
-Trains on RAVDESS + CREMA-D combined
-Algorithms: Random Forest, SVM, XGBoost, MLP — auto-selects best
+Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+Ã¢â€¢â€˜          ARIES Ã¢â‚¬â€ Speech Emotion Recognition Module  (v2.0)                 Ã¢â€¢â€˜
+Ã¢â€¢â€˜          Automated Real-time Interview Evaluation & Integrity System        Ã¢â€¢â€˜
+Ã¢â€¢Â Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â£
+Ã¢â€¢â€˜  Author  : Manan Sharma                                                     Ã¢â€¢â€˜
+Ã¢â€¢â€˜  Purpose : Production-quality SER for interview emotion analysis            Ã¢â€¢â€˜
+Ã¢â€¢â€˜  Datasets: RAVDESS (1440 samples) + CREMA-D (7442 samples)                 Ã¢â€¢â€˜
+Ã¢â€¢â€˜  Output  : confident | neutral | nervous | stressed                         Ã¢â€¢â€˜
+Ã¢â€¢Â Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â£
+Ã¢â€¢â€˜  Key improvements over v1.0:                                                Ã¢â€¢â€˜
+Ã¢â€¢â€˜    Ã¢â‚¬Â¢ Speaker-aware train/test splitting  Ã¢â€ â€™ zero data leakage                Ã¢â€¢â€˜
+Ã¢â€¢â€˜    Ã¢â‚¬Â¢ 207-dimensional feature vector      Ã¢â€ â€™ faster representation            Ã¢â€¢â€˜
+Ã¢â€¢â€˜    Ã¢â‚¬Â¢ Voice Activity Detection (VAD)      Ã¢â€ â€™ no silence noise                 Ã¢â€¢â€˜
+Ã¢â€¢â€˜    Ã¢â‚¬Â¢ 4Ãƒâ€” audio augmentation              Ã¢â€ â€™ better generalization             Ã¢â€¢â€˜
+Ã¢â€¢â€˜    Ã¢â‚¬Â¢ Stratified K-Fold CV (k=5)         Ã¢â€ â€™ reliable accuracy estimate        Ã¢â€¢â€˜
+Ã¢â€¢â€˜    Ã¢â‚¬Â¢ GridSearchCV hyperparameter tuning  Ã¢â€ â€™ optimal model params             Ã¢â€¢â€˜
+Ã¢â€¢â€˜    Ã¢â‚¬Â¢ LightGBM support (optional)        Ã¢â€ â€™ fastest tree model                Ã¢â€¢â€˜
+Ã¢â€¢â€˜    Ã¢â‚¬Â¢ Full evaluation suite              Ã¢â€ â€™ Acc, F1-macro, F1-weighted, CM    Ã¢â€¢â€˜
+Ã¢â€¢â€˜    Ã¢â‚¬Â¢ Saves model + scaler + encoder + metadata                              Ã¢â€¢â€˜
+Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+PIPELINE OVERVIEW:
+  1. load_dataset()      Ã¢â‚¬â€ parse filenames Ã¢â€ â€™ (features, label, speaker_id)
+  2. preprocess_audio()  Ã¢â‚¬â€ load WAV Ã¢â€ â€™ resample Ã¢â€ â€™ VAD strip silence
+  3. augment_audio()     Ã¢â‚¬â€ noise / pitch-shift / time-stretch / volume-scale
+  4. extract_features()  Ã¢â‚¬â€ 207-dim feature vector from audio signal
+  5. train_models()      Ã¢â‚¬â€ RF, SVM, XGBoost, LightGBM with GridSearchCV
+  6. evaluate_models()   Ã¢â‚¬â€ Acc, F1, confusion matrix, per-class report
+  7. save_model()        Ã¢â‚¬â€ pickle {model, scaler, encoder, metadata}
+  8. predict_emotion()   Ã¢â‚¬â€ inference on new WAV Ã¢â€ â€™ interview label
+
+USAGE:
+  python modules/emotion_model.py            # full train + evaluate
+  python modules/emotion_model.py --predict path/to/file.wav
 """
 
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+#  Standard library
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 import os
-import numpy as np
+import sys
+import time
+import logging
 import pickle
-import librosa
+import json
 import warnings
-warnings.filterwarnings('ignore')
+import argparse
+from datetime import datetime
+from collections import Counter
+from typing import Dict, List, Optional, Tuple
 
-# ---------------------------------------------------------------------------
-# Resolve absolute paths regardless of where the script is called from.
-# modules/emotion_model.py  →  MODULE_DIR = …/modules
-#                           →  BASE_DIR   = …/interview_evaluator  (project root)
-#                           →  DATA_DIR   = …/interview_evaluator/data
-# ---------------------------------------------------------------------------
-MODULE_DIR  = os.path.dirname(os.path.abspath(__file__))
-BASE_DIR    = os.path.normpath(os.path.join(MODULE_DIR, ".."))
-DATA_DIR    = os.path.join(BASE_DIR, "data")
-MODELS_DIR  = os.path.join(BASE_DIR, "models")
+warnings.filterwarnings("ignore")
 
-RAVDESS_EMOTIONS = {
-    '01': 'neutral', '02': 'calm', '03': 'happy', '04': 'sad',
-    '05': 'angry',   '06': 'fearful', '07': 'disgust', '08': 'surprised'
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+#  Third-party Ã¢â‚¬â€ core (always required)
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+import numpy as np
+import librosa
+import librosa.effects
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.base import clone
+from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.model_selection import (
+    StratifiedKFold,
+    GridSearchCV,
+    cross_val_score,
+)
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    classification_report,
+    confusion_matrix,
+)
+
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+#  Third-party Ã¢â‚¬â€ optional (graceful fallback if not installed)
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+try:
+    from xgboost import XGBClassifier
+    HAS_XGB = True
+except ImportError:
+    HAS_XGB = False
+
+try:
+    import lightgbm as lgb
+    HAS_LGB = True
+except ImportError:
+    HAS_LGB = False
+
+try:
+    import matplotlib
+    matplotlib.use("Agg")          # non-interactive backend Ã¢â‚¬â€ safe on servers
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    HAS_PLOT = True
+except ImportError:
+    HAS_PLOT = False
+
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+#  Logging setup Ã¢â‚¬â€ both console and file
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+def _setup_logging(log_dir: str) -> logging.Logger:
+    """Configure root logger with console + rotating file handler."""
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(
+        log_dir,
+        f"training_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    )
+    fmt = "%(asctime)s | %(levelname)-8s | %(message)s"
+    datefmt = "%H:%M:%S"
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format=fmt,
+        datefmt=datefmt,
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler(log_file, encoding="utf-8"),
+        ],
+    )
+    return logging.getLogger("ARIES-SER")
+
+
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+#  Absolute path resolution
+#  modules/emotion_model.py  Ã¢â€ â€™  BASE_DIR = Ã¢â‚¬Â¦/interview_evaluator
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR   = os.path.normpath(os.path.join(MODULE_DIR, ".."))
+DATA_DIR   = os.path.join(BASE_DIR, "data")
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+LOGS_DIR   = os.path.join(BASE_DIR, "logs")
+
+log = _setup_logging(LOGS_DIR)
+
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+#  Emotion mappings
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+
+# RAVDESS filename part[2] Ã¢â€ â€™ base emotion
+RAVDESS_EMOTIONS: Dict[str, str] = {
+    "01": "neutral",
+    "02": "calm",
+    "03": "happy",
+    "04": "sad",
+    "05": "angry",
+    "06": "fearful",
+    "07": "disgust",
+    "08": "surprised",
 }
 
-CREMA_EMOTIONS = {
-    'ANG': 'angry', 'DIS': 'disgust', 'FEA': 'fearful',
-    'HAP': 'happy', 'NEU': 'neutral', 'SAD': 'sad'
+# CREMA-D filename part[2] Ã¢â€ â€™ base emotion
+CREMA_EMOTIONS: Dict[str, str] = {
+    "ANG": "angry",
+    "DIS": "disgust",
+    "FEA": "fearful",
+    "HAP": "happy",
+    "NEU": "neutral",
+    "SAD": "sad",
 }
 
-INTERVIEW_MAP = {
-    'happy': 'confident',    'surprised': 'confident',
-    'calm': 'neutral',       'neutral': 'neutral',
-    'fearful': 'nervous',    'sad': 'stressed',
-    'angry': 'stressed',     'disgust': 'stressed'
+# Base emotion Ã¢â€ â€™ interview label (post-prediction mapping)
+# Design rationale:
+#   happy/surprised Ã¢â€ â€™ confident  (positive energy, engagement)
+#   calm/neutral    Ã¢â€ â€™ neutral    (composed, professional)
+#   fearful         Ã¢â€ â€™ nervous    (anxiety signal)
+#   sad/angry/disgust Ã¢â€ â€™ stressed (negative arousal)
+INTERVIEW_MAP: Dict[str, str] = {
+    "happy":     "confident",
+    "surprised": "confident",
+    "calm":      "neutral",
+    "neutral":   "neutral",
+    "fearful":   "nervous",
+    "sad":       "stressed",
+    "angry":     "stressed",
+    "disgust":   "stressed",
 }
 
-def extract_features(file_path):
+# Numeric score per interview label (used by scoring_engine.py)
+EMOTION_SCORES: Dict[str, int] = {
+    "confident": 90,
+    "neutral":   65,
+    "nervous":   40,
+    "stressed":  30,
+}
+
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+#  Audio constants
+# Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+SAMPLE_RATE   = 22050     # Hz Ã¢â‚¬â€ standard for speech / librosa default
+AUDIO_DURATION = 4.0     # seconds Ã¢â‚¬â€ max clip length (padded/trimmed)
+N_MFCC        = 40       # MFCC coefficients
+N_CHROMA      = 12       # Chroma bins
+N_MELS        = 128      # Mel spectrogram bands
+N_CONTRAST    = 7        # Spectral contrast bands
+RANDOM_STATE  = 42       # Reproducibility seed
+FEATURE_DIMENSIONS = 207
+FEATURE_SET_VERSION = "v2.1-no-tonnetz-hpss"
+REMOVED_FEATURES = ["tonnetz", "harmonic_percussive_energy"]
+np.random.seed(RANDOM_STATE)
+
+# VAD parameters
+VAD_TOP_DB    = 20       # dB below peak to consider silence
+VAD_MIN_LEN   = 0.3     # seconds Ã¢â‚¬â€ discard clips shorter than this after VAD
+
+# Augmentation parameters
+AUG_NOISE_FACTOR  = 0.005   # std of Gaussian noise
+AUG_PITCH_STEPS   = [-2, 2] # semitones to shift (one chosen per sample)
+AUG_STRETCH_RATES = [0.9, 1.1]  # time-stretch factors
+AUG_VOLUME_RANGE  = (0.7, 1.3)  # min/max volume scale factor
+
+
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+#  1. AUDIO PREPROCESSING
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+def preprocess_audio(
+    file_path: str,
+    sr: int = SAMPLE_RATE,
+    duration: float = AUDIO_DURATION,
+    apply_vad: bool = True,
+) -> Optional[np.ndarray]:
+    """
+    Load a WAV file, resample, apply Voice Activity Detection (VAD),
+    and return a fixed-length waveform.
+
+    Steps:
+      1. Load & resample to `sr` Hz.
+      2. Trim leading/trailing silence using VAD (top_db threshold).
+      3. Pad with zeros or truncate to exactly `duration` seconds.
+
+    Args:
+        file_path  : Absolute path to .wav file.
+        sr         : Target sample rate (default 22050).
+        duration   : Fixed output length in seconds (default 4.0).
+        apply_vad  : Whether to strip silence before feature extraction.
+
+    Returns:
+        1-D numpy array of shape (sr * duration,), or None on error.
+    """
     try:
-        y, sr = librosa.load(file_path, duration=3, offset=0.5, sr=22050)
+        # Load and resample in one step Ã¢â‚¬â€ librosa resamples automatically
+        y, _ = librosa.load(file_path, sr=sr, mono=True)
+
         if len(y) == 0:
+            log.debug(f"Empty audio: {file_path}")
             return None
-        features = []
-        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
-        features.extend(np.mean(mfcc, axis=1))
-        features.extend(np.std(mfcc, axis=1))
-        chroma = librosa.feature.chroma_stft(y=y, sr=sr)
-        features.extend(np.mean(chroma, axis=1))
-        mel = librosa.feature.melspectrogram(y=y, sr=sr)
-        features.append(np.mean(mel))
-        features.append(np.std(mel))
-        zcr = librosa.feature.zero_crossing_rate(y)
-        features.append(np.mean(zcr))
-        features.append(np.std(zcr))
-        rms = librosa.feature.rms(y=y)
-        features.append(np.mean(rms))
-        features.append(np.std(rms))
-        centroid = librosa.feature.spectral_centroid(y=y, sr=sr)
-        features.append(np.mean(centroid))
-        rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr)
-        features.append(np.mean(rolloff))
-        pitches, _ = librosa.piptrack(y=y, sr=sr)
-        features.append(np.mean(pitches[pitches > 0]) if np.any(pitches > 0) else 0)
-        return np.array(features[:101])
-    except Exception:
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Voice Activity Detection Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # librosa.effects.trim removes silence below `top_db` dB relative to
+        # the loudest frame. This eliminates recording noise / padding in the
+        # datasets that would corrupt feature statistics.
+        if apply_vad:
+            y_trimmed, _ = librosa.effects.trim(y, top_db=VAD_TOP_DB)
+            min_samples = int(VAD_MIN_LEN * sr)
+            if len(y_trimmed) < min_samples:
+                # Fall back to untrimmed if result is too short
+                y_trimmed = y
+            y = y_trimmed
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Fixed-length normalisation Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        target_length = int(sr * duration)
+        if len(y) < target_length:
+            # Pad with zeros at the end
+            y = np.pad(y, (0, target_length - len(y)), mode="constant")
+        else:
+            # Truncate to target length
+            y = y[:target_length]
+
+        return y.astype(np.float32)
+
+    except Exception as exc:
+        log.debug(f"preprocess_audio failed for {file_path}: {exc}")
         return None
 
-def load_ravdess(data_path):
-    X, y = [], []
-    if not os.path.exists(data_path):
-        print(f"  RAVDESS not found at {data_path}")
-        return X, y
-    for actor in os.listdir(data_path):
-        actor_path = os.path.join(data_path, actor)
+
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+#  2. AUDIO AUGMENTATION
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+def augment_audio(
+    y: np.ndarray,
+    sr: int = SAMPLE_RATE,
+    aug_type: str = "noise",
+    rng: Optional[np.random.RandomState] = None,
+) -> np.ndarray:
+    """
+    Apply a single augmentation to a waveform and return the modified signal.
+
+    Why augmentation?
+      Both RAVDESS and CREMA-D use acted emotions from a limited actor pool.
+      Augmentation synthesises new acoustic conditions (mic noise, tempo
+      variation, pitch variation, recording level) so the model generalises
+      to real interview recordings.
+
+    Args:
+        y        : Input waveform (numpy float32 array).
+        sr       : Sample rate.
+        aug_type : One of "noise", "pitch", "stretch", "volume".
+        rng      : Optional seeded random generator for deterministic training.
+
+    Returns:
+        Augmented waveform of the same length as input.
+    """
+    target_len = len(y)
+    rng = rng or np.random.RandomState(RANDOM_STATE)
+
+    if aug_type == "noise":
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Gaussian noise Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Simulates microphone hiss, background room noise.
+        noise = rng.normal(0, AUG_NOISE_FACTOR, len(y)).astype(np.float32)
+        y_aug = y + noise
+
+    elif aug_type == "pitch":
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Pitch shifting Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Simulates different vocal registers (higher/lower pitch speaker).
+        # Randomly choose one of [-2, +2] semitones.
+        steps = float(rng.choice(AUG_PITCH_STEPS))
+        y_aug = librosa.effects.pitch_shift(y, sr=sr, n_steps=steps)
+
+    elif aug_type == "stretch":
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Time stretching Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Simulates speaking rate variation (faster/slower speech).
+        # Rate < 1.0 Ã¢â€ â€™ slower; rate > 1.0 Ã¢â€ â€™ faster.
+        rate = float(rng.choice(AUG_STRETCH_RATES))
+        y_aug = librosa.effects.time_stretch(y, rate=rate)
+
+    elif aug_type == "volume":
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Volume scaling Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Simulates different mic distances / recording levels.
+        scale = rng.uniform(*AUG_VOLUME_RANGE)
+        y_aug = y * scale
+
+    else:
+        log.warning(f"Unknown aug_type '{aug_type}', returning original.")
+        y_aug = y.copy()
+
+    # Ensure output matches original length (pitch/stretch can change it)
+    if len(y_aug) < target_len:
+        y_aug = np.pad(y_aug, (0, target_len - len(y_aug)), mode="constant")
+    else:
+        y_aug = y_aug[:target_len]
+
+    return y_aug.astype(np.float32)
+
+
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+#  3. FEATURE EXTRACTION  (207-dimensional vector)
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+def extract_features(
+    y: np.ndarray,
+    sr: int = SAMPLE_RATE,
+) -> Optional[np.ndarray]:
+    """
+    Extract a 207-dimensional feature vector from a preprocessed waveform.
+
+    Feature breakdown:
+    Ã¢â€Å’Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â
+    Ã¢â€â€š Feature                              Ã¢â€â€š  Dims  Ã¢â€â€š What it captures       Ã¢â€â€š
+    Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â¼Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â¼Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â¤
+    Ã¢â€â€š MFCC mean (40 coefficients)          Ã¢â€â€š   40   Ã¢â€â€š Spectral envelope avg  Ã¢â€â€š
+    Ã¢â€â€š MFCC std  (40 coefficients)          Ã¢â€â€š   40   Ã¢â€â€š Spectral variation     Ã¢â€â€š
+    Ã¢â€â€š Delta-MFCC mean                      Ã¢â€â€š   40   Ã¢â€â€š MFCC velocity          Ã¢â€â€š
+    Ã¢â€â€š DeltaÃ‚Â²-MFCC mean                     Ã¢â€â€š   40   Ã¢â€â€š MFCC acceleration      Ã¢â€â€š
+    Ã¢â€â€š Chroma STFT mean (12 bins)           Ã¢â€â€š   12   Ã¢â€â€š Harmonic content       Ã¢â€â€š
+    Ã¢â€â€š Mel spectrogram (mean, std)          Ã¢â€â€š    2   Ã¢â€â€š Energy across freqs    Ã¢â€â€š
+    Ã¢â€â€š Spectral Contrast (7 bands, mean+std)Ã¢â€â€š   14   Ã¢â€â€š Peak vs valley energy  Ã¢â€â€š
+    Ã¢â€â€š Spectral Bandwidth (mean, std)       Ã¢â€â€š    2   Ã¢â€â€š Spectral spread        Ã¢â€â€š
+    Ã¢â€â€š Spectral Centroid (mean, std)        Ã¢â€â€š    2   Ã¢â€â€š Brightness             Ã¢â€â€š
+    Ã¢â€â€š Spectral Rolloff (mean, std)         Ã¢â€â€š    2   Ã¢â€â€š High-freq content      Ã¢â€â€š
+    Ã¢â€â€š RMS Energy (mean, std)               Ã¢â€â€š    2   Ã¢â€â€š Loudness               Ã¢â€â€š
+    Ã¢â€â€š Zero Crossing Rate (mean, std)       Ã¢â€â€š    2   Ã¢â€â€š Signal sharpness       Ã¢â€â€š
+    Ã¢â€â€š Pitch: mean, std, min, max, median   Ã¢â€â€š    5   Ã¢â€â€š Fundamental frequency  Ã¢â€â€š
+    Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â¼Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â¼Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â¤
+    Ã¢â€â€š TOTAL                                Ã¢â€â€š  207   Ã¢â€â€š                        Ã¢â€â€š
+    Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â´Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â´Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Ëœ
+
+    as-is Ã¢â‚¬â€ the scaler handles any normalisation downstream.
+
+    Args:
+        y  : Preprocessed waveform (float32 numpy array).
+        sr : Sample rate in Hz.
+
+    Returns:
+        1-D numpy float64 array, or None if extraction fails.
+    """
+    try:
+        features: List[float] = []
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Short-time Fourier Transform (shared across features) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Compute once, reuse Ã¢â‚¬â€ avoids redundant FFT calculations.
+        S_full = np.abs(librosa.stft(y))
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 1. MFCC: mean + std (80 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # MFCCs represent the short-term power spectrum shape.
+        # mean captures the "average" spectral profile;
+        # std captures how much the timbre varies over the clip.
+        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=N_MFCC)
+        features.extend(np.mean(mfcc, axis=1).tolist())   # 40 dims
+        features.extend(np.std(mfcc,  axis=1).tolist())   # 40 dims
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 2. Delta-MFCC mean (40 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # First-order temporal derivative of MFCC.
+        # Captures how quickly the vocal tract shape is changing Ã¢â‚¬â€ key for
+        # detecting hesitation pauses and emotion transitions.
+        delta_mfcc = librosa.feature.delta(mfcc)
+        features.extend(np.mean(delta_mfcc, axis=1).tolist())  # 40 dims
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 3. DeltaÃ‚Â²-MFCC mean (40 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Second-order temporal derivative (acceleration of spectral shape).
+        # Helps detect abrupt emotional shifts and speech onset patterns.
+        delta2_mfcc = librosa.feature.delta(mfcc, order=2)
+        features.extend(np.mean(delta2_mfcc, axis=1).tolist())  # 40 dims
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 4. Chroma STFT mean (12 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Projects the spectrum onto 12 pitch classes (C, C#, D, Ã¢â‚¬Â¦, B).
+        # Captures harmonic content that correlates with emotional valence.
+        chroma = librosa.feature.chroma_stft(S=S_full, sr=sr, n_chroma=N_CHROMA)
+        features.extend(np.mean(chroma, axis=1).tolist())  # 12 dims
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 5. Mel spectrogram: mean + std (2 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Energy distribution across perceptually-weighted frequency bands.
+        mel = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=N_MELS)
+        mel_db = librosa.power_to_db(mel, ref=np.max)
+        features.append(float(np.mean(mel_db)))   # 1 dim
+        features.append(float(np.std(mel_db)))    # 1 dim
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 6. Spectral Contrast: mean + std (14 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Measures the difference in energy between spectral peaks and valleys
+        # in N frequency sub-bands. Distinguishes voiced vs noisy speech.
+        contrast = librosa.feature.spectral_contrast(S=S_full, sr=sr, n_bands=N_CONTRAST - 1)
+        features.extend(np.mean(contrast, axis=1).tolist())  # 7 dims
+        features.extend(np.std(contrast,  axis=1).tolist())  # 7 dims
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 7. Spectral Bandwidth: mean + std (2 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Weighted std of frequencies around the spectral centroid.
+        # Wide bandwidth Ã¢â€ â€™ noisy / stressed; narrow Ã¢â€ â€™ calm / neutral.
+        bw = librosa.feature.spectral_bandwidth(S=S_full, sr=sr)
+        features.append(float(np.mean(bw)))  # 1 dim
+        features.append(float(np.std(bw)))   # 1 dim
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 8. Spectral Centroid: mean + std (2 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Weighted mean frequency Ã¢â‚¬â€ perceived "brightness" of speech.
+        # High centroid Ã¢â€ â€™ excited / confident; low Ã¢â€ â€™ tired / stressed.
+        centroid = librosa.feature.spectral_centroid(S=S_full, sr=sr)
+        features.append(float(np.mean(centroid)))  # 1 dim
+        features.append(float(np.std(centroid)))   # 1 dim
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 9. Spectral Rolloff: mean + std (2 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Frequency below which 85% of spectral energy is contained.
+        # Correlated with the presence/absence of high-frequency consonants.
+        rolloff = librosa.feature.spectral_rolloff(S=S_full, sr=sr)
+        features.append(float(np.mean(rolloff)))  # 1 dim
+        features.append(float(np.std(rolloff)))   # 1 dim
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 10. RMS Energy: mean + std (2 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Root-mean-square amplitude Ã¢â‚¬â€ perceptual loudness proxy.
+        # Confident speakers tend to have higher, stable RMS.
+        rms = librosa.feature.rms(y=y)
+        features.append(float(np.mean(rms)))  # 1 dim
+        features.append(float(np.std(rms)))   # 1 dim
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 11. Zero Crossing Rate: mean + std (2 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Rate at which the signal changes sign Ã¢â‚¬â€ correlates with voicing.
+        # High ZCR Ã¢â€ â€™ fricatives / nervous speech; low Ã¢â€ â€™ voiced / confident.
+        zcr = librosa.feature.zero_crossing_rate(y)
+        features.append(float(np.mean(zcr)))  # 1 dim
+        features.append(float(np.std(zcr)))   # 1 dim
+
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 13. Harmonic + Percussive energy: mean + std (4 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ 12. Pitch statistics (5 dims) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        # Extract F0 (fundamental frequency) using piptrack.
+        # Statistics across frames encode pitch range and stability.
+        # Monotone pitch Ã¢â€ â€™ stressed / nervous; varying pitch Ã¢â€ â€™ confident.
+        pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
+        # Select only high-confidence pitch values (where magnitude is high)
+        pitch_vals = []
+        for t in range(pitches.shape[1]):
+            idx = magnitudes[:, t].argmax()
+            p = pitches[idx, t]
+            if p > 0:
+                pitch_vals.append(p)
+
+        if len(pitch_vals) > 0:
+            pv = np.array(pitch_vals)
+            features.append(float(np.mean(pv)))    # 1 dim
+            features.append(float(np.std(pv)))     # 1 dim
+            features.append(float(np.min(pv)))     # 1 dim
+            features.append(float(np.max(pv)))     # 1 dim
+            features.append(float(np.median(pv)))  # 1 dim
+        else:
+            # File has no detectable pitch (whisper/noise) Ã¢â‚¬â€ fill with zeros
+            features.extend([0.0, 0.0, 0.0, 0.0, 0.0])
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Validate and return Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        feature_array = np.array(features, dtype=np.float64)
+
+        # Replace NaN/Inf with 0 (can happen in edge-case silent clips)
+        feature_array = np.nan_to_num(feature_array, nan=0.0, posinf=0.0, neginf=0.0)
+
+        return feature_array
+
+    except Exception as exc:
+        log.debug(f"extract_features failed: {exc}")
+        return None
+
+
+def extract_features_from_file(
+    file_path: str,
+    apply_vad: bool = True,
+    augment: bool = False,
+    aug_type: str = "noise",
+    rng: Optional[np.random.RandomState] = None,
+) -> Optional[np.ndarray]:
+    """
+    Convenience wrapper: load file Ã¢â€ â€™ preprocess Ã¢â€ â€™ (optionally augment) Ã¢â€ â€™ extract.
+
+    Args:
+        file_path : Path to .wav file.
+        apply_vad : Apply Voice Activity Detection.
+        augment   : Apply augmentation before feature extraction.
+        aug_type  : Type of augmentation if augment=True.
+        rng       : Optional seeded random generator for augmentation.
+
+    Returns:
+        Feature vector (numpy array) or None.
+    """
+    y = preprocess_audio(file_path, apply_vad=apply_vad)
+    if y is None:
+        return None
+    if augment:
+        y = augment_audio(y, aug_type=aug_type, rng=rng)
+    return extract_features(y)
+
+
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+#  4. DATASET LOADING  (speaker-aware)
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+def _parse_ravdess_speakers(ravdess_path: str) -> Dict:
+    """
+    Parse all RAVDESS .wav files and return a dict of speaker_id Ã¢â€ â€™ file list.
+
+    RAVDESS filename format:
+        {modality}-{vocal_channel}-{emotion}-{intensity}-{statement}-
+        {repetition}-{actor}.wav
+    Actor ID (part[6]) is used as speaker_id.
+    Emotion code (part[2]) maps to RAVDESS_EMOTIONS.
+    """
+    speaker_files: Dict[str, List[Tuple[str, str]]] = {}
+    if not os.path.exists(ravdess_path):
+        log.warning(f"RAVDESS not found: {ravdess_path}")
+        return speaker_files
+
+    for actor_dir in sorted(os.listdir(ravdess_path)):
+        actor_path = os.path.join(ravdess_path, actor_dir)
         if not os.path.isdir(actor_path):
             continue
         for fname in os.listdir(actor_path):
-            if not fname.endswith('.wav'):
+            if not fname.endswith(".wav"):
                 continue
-            parts = fname.replace('.wav', '').split('-')
-            if len(parts) < 3:
+            parts = fname.replace(".wav", "").split("-")
+            if len(parts) < 7:
                 continue
-            emotion = RAVDESS_EMOTIONS.get(parts[2])
-            if not emotion:
+            emotion_code = parts[2]
+            speaker_id   = f"RAVDESS_{parts[6]}"  # e.g., RAVDESS_01
+            emotion      = RAVDESS_EMOTIONS.get(emotion_code)
+            if emotion is None:
                 continue
-            features = extract_features(os.path.join(actor_path, fname))
-            if features is not None:
-                X.append(features)
-                y.append(emotion)
-    print(f"  RAVDESS: {len(X)} samples loaded")
-    return X, y
+            full_path = os.path.join(actor_path, fname)
+            speaker_files.setdefault(speaker_id, []).append((full_path, emotion))
 
-def load_crema(data_path):
-    X, y = [], []
-    audio_path = os.path.join(data_path, 'AudioWAV')
-    if not os.path.exists(audio_path):
-        print(f"  CREMA-D not found at {audio_path}")
-        return X, y
-    files = [f for f in os.listdir(audio_path) if f.endswith('.wav')]
-    print(f"  Loading {len(files)} CREMA-D files...")
-    for i, fname in enumerate(files):
-        if i % 1000 == 0 and i > 0:
-            print(f"    Processed {i}/{len(files)}...")
-        parts = fname.replace('.wav', '').split('_')
+    log.info(f"RAVDESS: found {len(speaker_files)} speakers, "
+             f"{sum(len(v) for v in speaker_files.values())} files")
+    return speaker_files
+
+
+def _parse_crema_speakers(crema_path: str) -> Dict:
+    """
+    Parse all CREMA-D .wav files and return a dict of speaker_id Ã¢â€ â€™ file list.
+
+    CREMA-D filename format:
+        {ActorID}_{SentenceID}_{Emotion}_{EmotionLevel}.wav
+    ActorID (part[0]) is used as speaker_id.
+    Emotion code (part[2]) maps to CREMA_EMOTIONS.
+    """
+    speaker_files: Dict[str, List[Tuple[str, str]]] = {}
+    audio_dir = os.path.join(crema_path, "AudioWAV")
+    if not os.path.exists(audio_dir):
+        log.warning(f"CREMA-D AudioWAV not found: {audio_dir}")
+        return speaker_files
+
+    all_files = [f for f in os.listdir(audio_dir) if f.endswith(".wav")]
+    log.info(f"CREMA-D: found {len(all_files)} .wav files, parsing...")
+
+    for fname in all_files:
+        parts = fname.replace(".wav", "").split("_")
         if len(parts) < 3:
             continue
-        emotion = CREMA_EMOTIONS.get(parts[2])
-        if not emotion:
+        actor_id     = parts[0]
+        emotion_code = parts[2]
+        speaker_id   = f"CREMA_{actor_id}"
+        emotion      = CREMA_EMOTIONS.get(emotion_code)
+        if emotion is None:
             continue
-        features = extract_features(os.path.join(audio_path, fname))
-        if features is not None:
-            X.append(features)
-            y.append(emotion)
-    print(f"  CREMA-D: {len(X)} samples loaded")
-    return X, y
+        full_path = os.path.join(audio_dir, fname)
+        speaker_files.setdefault(speaker_id, []).append((full_path, emotion))
+
+    log.info(f"CREMA-D: found {len(speaker_files)} speakers, "
+             f"{sum(len(v) for v in speaker_files.values())} files")
+    return speaker_files
+
 
 def load_dataset(
-    ravdess_path=None,
-    crema_path=None,
-):
-    # Default to absolute paths derived from this file's location
-    if ravdess_path is None:
-        ravdess_path = os.path.join(DATA_DIR, "Audio_Speech_Actors_01-24")
-    if crema_path is None:
-        crema_path = os.path.join(DATA_DIR, "CREMA-D")
+    ravdess_path: Optional[str] = None,
+    crema_path:   Optional[str] = None,
+    use_augmentation: bool = True,
+    aug_types: List[str] = ("noise", "pitch", "stretch", "volume"),
+    apply_vad: bool = True,
+    random_state: int = RANDOM_STATE,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Load RAVDESS + CREMA-D, extract features, and return arrays.
 
-    # Normalise for Windows (forward-slash → backslash where needed)
-    ravdess_path = os.path.normpath(ravdess_path)
-    crema_path   = os.path.normpath(crema_path)
+    CRITICAL: Speaker-aware design
+    Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    NaÃƒÂ¯ve random splitting allows different recordings from the same speaker
+    to appear in both train and test sets. Because all recordings from one
+    speaker have the same voice timbre, the model memorises the speaker
+    rather than learning the emotion. This inflates test accuracy by ~10-15%.
 
-    # ── Debug: confirm resolved paths ──────────────────────────────────────
-    print("\n  [PATH DEBUG]")
-    print(f"    BASE_DIR     : {BASE_DIR}")
-    print(f"    DATA_DIR     : {DATA_DIR}")
-    print(f"    RAVDESS path : {ravdess_path}")
-    print(f"      exists?    : {os.path.exists(ravdess_path)}")
-    print(f"    CREMA-D path : {crema_path}")
-    print(f"      exists?    : {os.path.exists(crema_path)}")
-    print()
+    We tag every sample with its speaker_id so that train_models() can do a
+    speaker-aware split (no speaker appears in both train and test).
 
-    print("Loading RAVDESS...")
-    X_r, y_r = load_ravdess(ravdess_path)
-    print("Loading CREMA-D...")
-    X_c, y_c = load_crema(crema_path)
-    X = X_r + X_c
-    y = y_r + y_c
-    print(f"  Combined: {len(X)} total samples")
-    return np.array(X), np.array(y)
+    Args:
+        ravdess_path    : Path to Audio_Speech_Actors_01-24/ directory.
+        crema_path      : Path to CREMA-D/ directory.
+        use_augmentation: If True, add augmented copies of each sample.
+        aug_types       : Which augmentation types to apply.
+        apply_vad       : Apply Voice Activity Detection during preprocessing.
+        random_state    : Seed for deterministic augmentation.
 
-def train_model(
-    ravdess_path=None,
-    crema_path=None,
-    save_path=None,
-):
-    # Resolve defaults using absolute paths
-    if ravdess_path is None:
-        ravdess_path = os.path.join(DATA_DIR, "Audio_Speech_Actors_01-24")
-    if crema_path is None:
-        crema_path = os.path.join(DATA_DIR, "CREMA-D")
+    Returns:
+        X           : Feature matrix (n_samples, n_features)
+        y_raw       : Raw emotion labels (n_samples,)
+        speaker_ids : Speaker identifier per sample (n_samples,)
+    """
+    ravdess_path = os.path.normpath(ravdess_path or
+                   os.path.join(DATA_DIR, "Audio_Speech_Actors_01-24"))
+    crema_path   = os.path.normpath(crema_path or
+                   os.path.join(DATA_DIR, "CREMA-D"))
+
+    rng = np.random.RandomState(random_state)
+
+    log.info("=" * 60)
+    log.info("LOADING DATASET")
+    log.info(f"  RAVDESS : {ravdess_path}")
+    log.info(f"  CREMA-D : {crema_path}")
+    log.info(f"  VAD     : {apply_vad}")
+    log.info(f"  Augment : {use_augmentation} {list(aug_types) if use_augmentation else ''}")
+    log.info("=" * 60)
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Parse file lists grouped by speaker Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    ravdess_speakers = _parse_ravdess_speakers(ravdess_path)
+    crema_speakers   = _parse_crema_speakers(crema_path)
+
+    all_speakers = {**ravdess_speakers, **crema_speakers}
+    total_files  = sum(len(v) for v in all_speakers.values())
+    log.info(f"Total speakers: {len(all_speakers)}, Total files: {total_files}")
+
+    X: List[np.ndarray] = []
+    y_raw: List[str]    = []
+    speaker_ids: List[str] = []
+
+    processed = 0
+    failed    = 0
+    t_start   = time.time()
+
+    for speaker_id, file_list in all_speakers.items():
+        for file_path, emotion in file_list:
+            # Ã¢â€â‚¬Ã¢â€â‚¬ Original sample Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+            feats = extract_features_from_file(file_path, apply_vad=apply_vad)
+            if feats is not None:
+                X.append(feats)
+                y_raw.append(emotion)
+                speaker_ids.append(speaker_id)
+                processed += 1
+            else:
+                failed += 1
+                continue
+
+            # Ã¢â€â‚¬Ã¢â€â‚¬ Augmented copies (original speaker_id preserved intentionally)
+            # Augmented samples stay with their speaker so they end up on the
+            # same side of the train/test split Ã¢â‚¬â€ preventing leakage.
+            if use_augmentation:
+                for aug_type in aug_types:
+                    feats_aug = extract_features_from_file(
+                        file_path,
+                        apply_vad=apply_vad,
+                        augment=True,
+                        aug_type=aug_type,
+                        rng=rng,
+                    )
+                    if feats_aug is not None:
+                        X.append(feats_aug)
+                        y_raw.append(emotion)
+                        speaker_ids.append(speaker_id)  # same speaker group
+
+            # Progress logging every 500 original files
+            if processed % 500 == 0 and processed > 0:
+                elapsed = time.time() - t_start
+                rate = processed / elapsed
+                remaining = (total_files - processed) / rate if rate > 0 else 0
+                log.info(
+                    f"  Progress: {processed}/{total_files} original samples "
+                    f"| {rate:.0f}/s | ~{remaining:.0f}s remaining"
+                )
+
+    elapsed_total = time.time() - t_start
+    log.info(f"Dataset loaded in {elapsed_total:.1f}s")
+    log.info(f"  Samples extracted : {len(X)} "
+             f"(orig + aug)" if use_augmentation else f"  Samples: {len(X)}")
+    log.info(f"  Files failed      : {failed}")
+    log.info(f"  Feature dimensions: {X[0].shape[0] if X else 'N/A'}")
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Emotion distribution Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    emo_counts = Counter(y_raw)
+    log.info("  Emotion distribution (raw labels):")
+    for emo, cnt in sorted(emo_counts.items()):
+        bar = "Ã¢â€“Ë†" * (cnt // 50)
+        log.info(f"    {emo:<12}: {cnt:5d}  {bar}")
+
+    return (
+        np.array(X,           dtype=np.float64),
+        np.array(y_raw,       dtype=str),
+        np.array(speaker_ids, dtype=str),
+    )
+
+
+def speaker_aware_split(
+    X: np.ndarray,
+    y: np.ndarray,
+    speaker_ids: np.ndarray,
+    test_ratio: float = 0.2,
+    random_state: int = RANDOM_STATE,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Split data such that no speaker appears in both train and test sets.
+
+    Algorithm:
+      1. Group speakers by dataset (RAVDESS / CREMA-D).
+      2. Randomly assign ~test_ratio of speakers to the test fold.
+      3. All samples from test speakers go to test; rest go to train.
+
+    This prevents the model from learning speaker-specific voice features
+    instead of emotion features Ã¢â‚¬â€ the single most common SER mistake.
+
+    Args:
+        X            : Feature matrix.
+        y            : Label array.
+        speaker_ids  : Speaker ID per sample.
+        test_ratio   : Fraction of speakers reserved for testing.
+        random_state : Numpy random seed.
+
+    Returns:
+        X_train, X_test, y_train, y_test
+    """
+    rng = np.random.RandomState(random_state)
+
+    unique_speakers = np.unique(speaker_ids)
+
+    # Separate RAVDESS and CREMA speakers to ensure both datasets in test set
+    ravdess_spk = [s for s in unique_speakers if s.startswith("RAVDESS")]
+    crema_spk   = [s for s in unique_speakers if s.startswith("CREMA")]
+
+    rng.shuffle(ravdess_spk)
+    rng.shuffle(crema_spk)
+
+    n_test_rav = max(1, int(len(ravdess_spk) * test_ratio))
+    n_test_cre = max(1, int(len(crema_spk)   * test_ratio))
+
+    test_speakers = set(ravdess_spk[:n_test_rav] + crema_spk[:n_test_cre])
+
+    train_mask = np.array([sid not in test_speakers for sid in speaker_ids])
+    test_mask  = ~train_mask
+
+    log.info(f"Speaker split: {len(ravdess_spk) - n_test_rav} RAVDESS train speakers, "
+             f"{n_test_rav} test")
+    log.info(f"              {len(crema_spk) - n_test_cre} CREMA train speakers, "
+             f"{n_test_cre} test")
+    log.info(f"Train samples: {train_mask.sum()} | Test samples: {test_mask.sum()}")
+
+    return (
+        X[train_mask], X[test_mask],
+        y[train_mask], y[test_mask],
+    )
+
+
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+#  5. MODEL TRAINING  (RF, SVM, XGBoost, LightGBM + GridSearchCV)
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+def _build_model_configs(label_encoder: LabelEncoder) -> Dict:
+    """
+    Build a dict of model_name Ã¢â€ â€™ (estimator, param_grid).
+
+    Hyperparameter grid notes:
+    Ã¢â€â‚¬ RF   : More trees + deeper = better but slower; n_jobs=-1 parallelises.
+    Ã¢â€â‚¬ SVM  : RBF kernel with C/gamma tuning is the classic SER workhorse.
+    Ã¢â€â‚¬ XGB  : Gradient boosting Ã¢â‚¬â€ powerful but needs n_class aware settings.
+    Ã¢â€â‚¬ LGBM : Fastest tree model; leaf-wise growth, great for tabular features.
+
+    GridSearchCV will be run with cv=3 (fast inner loop); final evaluation
+    uses a 5-fold outer CV for unbiased accuracy estimate.
+    """
+    n_classes = len(label_encoder.classes_)
+
+    configs: Dict = {}
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Random Forest Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    configs["Random Forest"] = (
+        RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1, class_weight="balanced"),
+        {
+            "n_estimators":      [200, 400],
+            "max_depth":         [None, 30],
+            "min_samples_split": [2, 5],
+            "max_features":      ["sqrt", "log2"],
+        },
+    )
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ SVM Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    configs["SVM"] = (
+        SVC(kernel="rbf", probability=True, random_state=RANDOM_STATE,
+            class_weight="balanced"),
+        {
+            "C":     [1, 10, 50],
+            "gamma": ["scale", "auto"],
+        },
+    )
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ XGBoost Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    if HAS_XGB:
+        configs["XGBoost"] = (
+            XGBClassifier(
+                objective="multi:softprob",
+                num_class=n_classes,
+                eval_metric="mlogloss",
+                use_label_encoder=False,
+                verbosity=0,
+                random_state=RANDOM_STATE,
+                n_jobs=-1,
+            ),
+            {
+                "n_estimators":  [200, 400],
+                "learning_rate": [0.05, 0.1],
+                "max_depth":     [5, 7],
+                "subsample":     [0.8, 1.0],
+            },
+        )
+    else:
+        log.warning("XGBoost not installed Ã¢â‚¬â€ skipping. pip install xgboost")
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ LightGBM Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    if HAS_LGB:
+        configs["LightGBM"] = (
+            lgb.LGBMClassifier(
+                objective="multiclass",
+                num_class=n_classes,
+                random_state=RANDOM_STATE,
+                n_jobs=-1,
+                class_weight="balanced",
+                verbose=-1,
+            ),
+            {
+                "n_estimators":  [200, 400],
+                "learning_rate": [0.05, 0.1],
+                "num_leaves":    [31, 63],
+                "max_depth":     [-1, 10],
+            },
+        )
+    else:
+        log.warning("LightGBM not installed Ã¢â‚¬â€ skipping. pip install lightgbm")
+
+    return configs
+
+
+def train_models(
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    label_encoder: LabelEncoder,
+    use_grid_search: bool = True,
+    cv_folds: int = 5,
+) -> Dict:
+    """
+    Train all configured models and return a results dict.
+
+    The StandardScaler is inside a sklearn Pipeline so it is fitted only on
+    each training fold during CV and only on the full training split for the
+    final fitted model.
+    """
+    log.info("=" * 60)
+    log.info("MODEL TRAINING")
+    log.info(f"  Samples       : {X_train.shape[0]}")
+    log.info(f"  Features      : {X_train.shape[1]}")
+    log.info(f"  Classes       : {list(label_encoder.classes_)}")
+    log.info(f"  GridSearchCV  : {use_grid_search}")
+    log.info(f"  CV folds      : {cv_folds}")
+    log.info("  Scoring       : f1_macro")
+    log.info("=" * 60)
+
+    model_configs = _build_model_configs(label_encoder)
+    skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=RANDOM_STATE)
+    results: Dict = {}
+
+    for model_name, (estimator, param_grid) in model_configs.items():
+        log.info(f"\n-- Training: {model_name} --")
+        t0 = time.time()
+
+        pipeline = Pipeline([
+            ("scaler", StandardScaler()),
+            ("classifier", estimator),
+        ])
+        pipeline_grid = {
+            f"classifier__{param_name}": values
+            for param_name, values in param_grid.items()
+        }
+
+        if use_grid_search and len(pipeline_grid) > 0:
+            log.info("  Running GridSearchCV (cv=3, scoring=f1_macro)...")
+            grid_search = GridSearchCV(
+                estimator=pipeline,
+                param_grid=pipeline_grid,
+                cv=3,
+                scoring="f1_macro",
+                n_jobs=-1,
+                verbose=0,
+                refit=True,
+            )
+            grid_search.fit(X_train, y_train)
+            best_estimator = grid_search.best_estimator_
+            log.info(f"  Best params       : {grid_search.best_params_}")
+            log.info(f"  Best CV Macro F1  : {grid_search.best_score_*100:.2f}%")
+        else:
+            best_estimator = clone(pipeline)
+            best_estimator.fit(X_train, y_train)
+
+        log.info(f"  Running {cv_folds}-fold CV on an unfitted cloned pipeline...")
+        cv_scores = cross_val_score(
+            clone(best_estimator),
+            X_train,
+            y_train,
+            cv=skf,
+            scoring="f1_macro",
+            n_jobs=-1,
+        )
+        cv_f1_macro = float(np.mean(cv_scores))
+        cv_std = float(np.std(cv_scores))
+
+        elapsed = time.time() - t0
+        log.info(f"  CV Macro F1 : {cv_f1_macro*100:.2f}% +/- {cv_std*100:.2f}%")
+        log.info(f"  Time taken  : {elapsed:.1f}s")
+
+        results[model_name] = {
+            "model":       best_estimator,
+            "cv_f1_macro": cv_f1_macro,
+            "cv_acc":      cv_f1_macro,
+            "cv_std":      cv_std,
+            "scaler":      best_estimator.named_steps.get("scaler"),
+        }
+
+    return results
+
+#  6. EVALUATION
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+def evaluate_models(
+    results: Dict,
+    X_test: np.ndarray,
+    y_test: np.ndarray,
+    label_encoder: LabelEncoder,
+    models_dir: str = MODELS_DIR,
+) -> Dict:
+    """
+    Evaluate all trained models on the held-out test set and log full metrics.
+
+    Metrics computed per model:
+      Ã¢â‚¬Â¢ Accuracy              Ã¢â‚¬â€ overall correct predictions
+      Ã¢â‚¬Â¢ Macro F1              Ã¢â‚¬â€ unweighted mean F1 across classes
+                                (penalises poor performance on minority classes)
+      Ã¢â‚¬Â¢ Weighted F1           Ã¢â‚¬â€ F1 weighted by class support
+                                (reflects real-world class distribution)
+      Ã¢â‚¬Â¢ Per-class precision/recall/F1 Ã¢â‚¬â€ full classification report
+      Ã¢â‚¬Â¢ Confusion matrix (raw counts + normalised)
+      Ã¢â‚¬Â¢ Interview-mapped accuracy Ã¢â‚¬â€ accuracy on the 4-label scheme
+        (confident / neutral / nervous / stressed)
+
+    Args:
+        results       : Output of train_models().
+        X_test        : Scaled test feature matrix.
+        y_test        : Encoded integer label array (test set).
+        label_encoder : Fitted LabelEncoder.
+        models_dir    : Directory to save confusion matrix plots.
+
+    Returns:
+        Updated results dict with evaluation metrics added.
+    """
+    log.info("\n" + "=" * 60)
+    log.info("MODEL EVALUATION Ã¢â‚¬â€ HELD-OUT TEST SET")
+    log.info("=" * 60)
+
+    class_names = list(label_encoder.classes_)
+    y_test_str  = label_encoder.inverse_transform(y_test)
+
+    eval_rows = []   # for final comparison table
+
+    for model_name, info in results.items():
+        model = info["model"]
+        log.info(f"\nÃ¢â€â‚¬Ã¢â€â‚¬ {model_name} Ã¢â€â‚¬Ã¢â€â‚¬")
+
+        y_pred_enc = model.predict(X_test)
+
+        # XGBoost returns float by default Ã¢â‚¬â€ convert back to int
+        if hasattr(y_pred_enc[0], "item"):
+            y_pred_enc = y_pred_enc.astype(int)
+
+        y_pred_str = label_encoder.inverse_transform(y_pred_enc)
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Core metrics Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        acc        = accuracy_score(y_test_str, y_pred_str)
+        f1_macro   = f1_score(y_test_str, y_pred_str, average="macro",   zero_division=0)
+        f1_weighted = f1_score(y_test_str, y_pred_str, average="weighted", zero_division=0)
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Interview-mapped metrics Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        y_test_mapped = np.array([INTERVIEW_MAP.get(e, e) for e in y_test_str])
+        y_pred_mapped = np.array([INTERVIEW_MAP.get(e, e) for e in y_pred_str])
+        mapped_acc    = accuracy_score(y_test_mapped, y_pred_mapped)
+        mapped_f1     = f1_score(y_test_mapped, y_pred_mapped,
+                                  average="macro", zero_division=0)
+
+        log.info(f"  Accuracy (raw 8-class)    : {acc*100:.2f}%")
+        log.info(f"  F1 Macro (raw)            : {f1_macro*100:.2f}%")
+        log.info(f"  F1 Weighted (raw)         : {f1_weighted*100:.2f}%")
+        log.info(f"  Accuracy (interview 4-cls): {mapped_acc*100:.2f}%")
+        log.info(f"  F1 Macro (interview)      : {mapped_f1*100:.2f}%")
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Full classification report Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        report = classification_report(
+            y_test_str, y_pred_str, zero_division=0
+        )
+        log.info(f"\n  Per-class report:\n{report}")
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Confusion matrix Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        cm = confusion_matrix(y_test_str, y_pred_str, labels=class_names)
+        cm_norm = cm.astype(float) / cm.sum(axis=1, keepdims=True)
+
+        if HAS_PLOT:
+            _save_confusion_matrix(
+                cm=cm_norm,
+                labels=class_names,
+                model_name=model_name,
+                save_dir=models_dir,
+            )
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Store results Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        results[model_name].update({
+            "test_acc":        acc,
+            "f1_macro":        f1_macro,
+            "f1_weighted":     f1_weighted,
+            "mapped_acc":      mapped_acc,
+            "mapped_f1":       mapped_f1,
+            "confusion_matrix": cm,
+            "y_pred_str":      y_pred_str,
+        })
+
+        eval_rows.append({
+            "Model":       model_name,
+            "CV Acc":      f"{info['cv_acc']*100:.2f}% Ã‚Â± {info['cv_std']*100:.2f}%",
+            "Test Acc":    f"{acc*100:.2f}%",
+            "F1 Macro":    f"{f1_macro*100:.2f}%",
+            "F1 Weighted": f"{f1_weighted*100:.2f}%",
+            "Interview Acc": f"{mapped_acc*100:.2f}%",
+        })
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Summary comparison table Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    log.info("\n" + "=" * 60)
+    log.info("FINAL MODEL COMPARISON")
+    log.info("=" * 60)
+    header = f"{'Model':<18} {'CV Acc':>20} {'Test Acc':>10} {'F1 Macro':>10} {'F1 Wt':>10} {'Interview':>12}"
+    log.info(header)
+    log.info("-" * len(header))
+
+    for row in sorted(eval_rows, key=lambda r: float(r["Test Acc"].replace("%", "")), reverse=True):
+        marker = " Ã¢â€”â€ž BEST" if row == max(eval_rows,
+                    key=lambda r: float(r["Test Acc"].replace("%", ""))) else ""
+        log.info(
+            f"  {row['Model']:<16} {row['CV Acc']:>20} {row['Test Acc']:>10} "
+            f"{row['F1 Macro']:>10} {row['F1 Weighted']:>10} {row['Interview Acc']:>12}"
+            f"{marker}"
+        )
+
+    return results
+
+
+def _save_confusion_matrix(
+    cm: np.ndarray,
+    labels: List[str],
+    model_name: str,
+    save_dir: str,
+) -> None:
+    """Save a normalised confusion matrix heatmap as PNG."""
+    try:
+        os.makedirs(save_dir, exist_ok=True)
+        safe_name = model_name.lower().replace(" ", "_")
+        save_path = os.path.join(save_dir, f"confusion_matrix_{safe_name}.png")
+
+        fig, ax = plt.subplots(figsize=(10, 8))
+        sns.heatmap(
+            cm,
+            annot=True,
+            fmt=".2f",
+            xticklabels=labels,
+            yticklabels=labels,
+            cmap="Blues",
+            vmin=0, vmax=1,
+            ax=ax,
+        )
+        ax.set_title(f"Confusion Matrix (normalised) Ã¢â‚¬â€ {model_name}", fontsize=14)
+        ax.set_xlabel("Predicted Label")
+        ax.set_ylabel("True Label")
+        plt.tight_layout()
+        plt.savefig(save_path, dpi=120)
+        plt.close(fig)
+        log.info(f"  Confusion matrix saved: {save_path}")
+    except Exception as exc:
+        log.warning(f"Could not save confusion matrix: {exc}")
+
+
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+#  7. SAVE MODEL
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+def save_model(
+    results: Dict,
+    scaler: Optional[StandardScaler],
+    label_encoder: LabelEncoder,
+    feature_dim: int,
+    save_path: Optional[str] = None,
+) -> str:
+    """
+    Persist the best model (by held-out Macro F1) along with all
+    artefacts needed for inference.
+
+    Saved bundle keys:
+      model         : Best fitted sklearn estimator.
+      scaler        : Fitted StandardScaler from the selected Pipeline.
+      label_encoder : Fitted LabelEncoder (decode integer predictions).
+      model_name    : String name of winning algorithm.
+      feature_dim   : Expected input dimension (for validation at inference).
+      metrics       : Dict of all evaluation metrics.
+      interview_map : INTERVIEW_MAP dict (baked in for portability).
+      emotion_scores: EMOTION_SCORES dict.
+      trained_at    : ISO timestamp.
+      all_results   : Per-model summary for auditing.
+
+    Args:
+        results       : Output of evaluate_models().
+        scaler        : Optional external scaler for legacy bundles.
+        label_encoder : Fitted LabelEncoder.
+        feature_dim   : Number of features.
+        save_path     : Where to save the .pkl file.
+
+    Returns:
+        Absolute path of the saved file.
+    """
     if save_path is None:
         save_path = os.path.join(MODELS_DIR, "emotion_model.pkl")
 
-    from sklearn.model_selection import train_test_split
-    from sklearn.preprocessing import StandardScaler, LabelEncoder
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.svm import SVC
-    from sklearn.neural_network import MLPClassifier
-    from sklearn.metrics import accuracy_score, classification_report
+    save_path = os.path.normpath(save_path)
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    # Select best model by held-out raw Macro F1 for metric consistency.
+    best_name = max(
+        results,
+        key=lambda k: results[k].get("f1_macro", results[k].get("cv_f1_macro", 0)),
+    )
+    best_info = results[best_name]
+
+    log.info(f"\nBest model selected: {best_name}")
+    log.info(f"  Test accuracy (raw)      : {best_info.get('test_acc', 0)*100:.2f}%")
+    log.info(f"  Macro F1 (raw)           : {best_info.get('f1_macro', 0)*100:.2f}%")
+
+    bundle = {
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Core inference artefacts Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        "model":         best_info["model"],
+        "scaler":        best_info.get("scaler", scaler),
+        "label_encoder": label_encoder,
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Configuration Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        "model_name":    best_name,
+        "feature_dim":   feature_dim,
+        "feature_set_version": FEATURE_SET_VERSION,
+        "expected_feature_dim": FEATURE_DIMENSIONS,
+        "removed_features": REMOVED_FEATURES,
+        "interview_map": INTERVIEW_MAP,
+        "emotion_scores": EMOTION_SCORES,
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Metrics Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        "metrics": {
+            "cv_f1_macro": best_info.get("cv_f1_macro", best_info.get("cv_acc", 0)),
+            "cv_acc":      best_info.get("cv_acc", 0),
+            "cv_std":      best_info.get("cv_std", 0),
+            "test_acc":    best_info.get("test_acc", 0),
+            "f1_macro":    best_info.get("f1_macro", 0),
+            "f1_weighted": best_info.get("f1_weighted", 0),
+            "mapped_acc":  best_info.get("mapped_acc", 0),
+            "mapped_f1":   best_info.get("mapped_f1", 0),
+        },
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Provenance Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        "trained_at":  datetime.now().isoformat(),
+        "all_results": {
+            k: {
+                "cv_f1_macro": v.get("cv_f1_macro", v.get("cv_acc", 0)),
+                "cv_acc":      v.get("cv_acc", 0),
+                "test_acc":   v.get("test_acc", 0),
+                "f1_macro":   v.get("f1_macro", 0),
+                "mapped_acc": v.get("mapped_acc", 0),
+            }
+            for k, v in results.items()
+        },
+    }
+
+    with open(save_path, "wb") as f:
+        pickle.dump(bundle, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+    # Also save a human-readable JSON metadata sidecar
+    meta_path = save_path.replace(".pkl", "_metadata.json")
+    meta = {k: v for k, v in bundle.items()
+            if k not in ("model", "scaler", "label_encoder")}
+    try:
+        with open(meta_path, "w", encoding="utf-8") as mf:
+            json.dump(meta, mf, indent=2, default=str)
+        log.info(f"Metadata saved: {meta_path}")
+    except Exception as exc:
+        log.warning(f"Could not save metadata JSON: {exc}")
+
+    file_size_mb = os.path.getsize(save_path) / (1024 * 1024)
+    log.info(f"Model bundle saved: {save_path}  ({file_size_mb:.1f} MB)")
+
+    return save_path
+
+
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+#  8. INFERENCE
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+def predict_emotion(
+    audio_path: str,
+    model_path: Optional[str] = None,
+    return_confidence: bool = False,
+) -> str | Tuple[str, float, Dict]:
+    """
+    Predict the interview emotion label for a single audio file.
+
+    Interview labels: "confident" | "neutral" | "nervous" | "stressed"
+
+    Args:
+        audio_path       : Path to .wav file to analyse.
+        model_path       : Path to .pkl bundle (default: models/emotion_model.pkl).
+        return_confidence: If True, also return confidence score and all probs.
+
+    Returns:
+        If return_confidence=False Ã¢â€ â€™ interview_label (str)
+        If return_confidence=True  Ã¢â€ â€™ (interview_label, confidence, all_probs dict)
+
+    Usage:
+        label = predict_emotion("recording.wav")
+        label, conf, probs = predict_emotion("recording.wav", return_confidence=True)
+    """
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Load bundle Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    if model_path is None:
+        model_path = os.path.join(MODELS_DIR, "emotion_model.pkl")
+
+    model_path = os.path.normpath(model_path)
+
+    if not os.path.exists(model_path):
+        log.error(f"Model not found at {model_path}. Train first.")
+        return ("neutral", 0.0, {}) if return_confidence else "neutral"
 
     try:
-        from xgboost import XGBClassifier
-        HAS_XGB = True
-    except ImportError:
-        HAS_XGB = False
-        print("  XGBoost not installed, skipping")
+        with open(model_path, "rb") as f:
+            bundle = pickle.load(f)
+    except Exception as exc:
+        log.error(f"Failed to load model: {exc}")
+        return ("neutral", 0.0, {}) if return_confidence else "neutral"
 
-    print("\n" + "="*55)
-    print("  TRAINING SPEECH EMOTION MODEL")
-    print("  Dataset: RAVDESS + CREMA-D")
-    print("="*55)
+    model         = bundle["model"] if isinstance(bundle, dict) else bundle
+    scaler        = bundle.get("scaler")        if isinstance(bundle, dict) else None
+    label_encoder = bundle.get("label_encoder") if isinstance(bundle, dict) else None
+    interview_map = bundle.get("interview_map", INTERVIEW_MAP)
+    expected_dim  = bundle.get("feature_dim")
 
-    X, y = load_dataset(ravdess_path, crema_path)
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Extract features Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    try:
+        features = extract_features_from_file(audio_path, apply_vad=True)
+    except Exception as exc:
+        log.warning(f"Feature extraction failed: {exc}")
+        features = None
+
+    if features is None:
+        log.warning(f"No features extracted from {audio_path}, defaulting to neutral")
+        return ("neutral", 0.0, {}) if return_confidence else "neutral"
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Dimension guard Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    if expected_dim is not None and features.shape[0] != expected_dim:
+        log.warning(
+            f"Feature dim mismatch: expected {expected_dim}, got {features.shape[0]}. "
+            "Model may have been trained with a different config."
+        )
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Preprocess Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    features = features.reshape(1, -1)
+    model_is_pipeline = isinstance(model, Pipeline)
+    if scaler is not None and not model_is_pipeline:
+        features = scaler.transform(features)
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Predict Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    try:
+        raw_pred = model.predict(features)[0]
+
+        # Convert integer prediction back to emotion string
+        if isinstance(raw_pred, (int, np.integer, float, np.floating)):
+            if label_encoder is not None:
+                raw_emotion = label_encoder.inverse_transform([int(raw_pred)])[0]
+            else:
+                # Fallback ordered list (same order as LabelEncoder on sorted labels)
+                fallback = ["angry", "calm", "disgust", "fearful",
+                            "happy", "neutral", "sad", "surprised"]
+                raw_emotion = fallback[int(raw_pred)] if int(raw_pred) < len(fallback) else "neutral"
+        else:
+            raw_emotion = str(raw_pred)
+
+        interview_label = interview_map.get(raw_emotion, "neutral")
+
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Confidence (if model supports predict_proba) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        if return_confidence and hasattr(model, "predict_proba"):
+            probs_raw = model.predict_proba(features)[0]
+            if label_encoder is not None:
+                raw_labels = label_encoder.classes_
+            else:
+                raw_labels = [str(i) for i in range(len(probs_raw))]
+
+            # Map raw probabilities Ã¢â€ â€™ interview label probabilities
+            interview_probs: Dict[str, float] = {
+                "confident": 0.0, "neutral": 0.0, "nervous": 0.0, "stressed": 0.0
+            }
+            for raw_lbl, prob in zip(raw_labels, probs_raw):
+                iv_lbl = interview_map.get(str(raw_lbl), "neutral")
+                interview_probs[iv_lbl] = interview_probs.get(iv_lbl, 0.0) + float(prob)
+
+            confidence = interview_probs.get(interview_label, 0.0)
+            return interview_label, confidence, interview_probs
+
+        return interview_label
+
+    except Exception as exc:
+        log.error(f"Prediction failed: {exc}")
+        return ("neutral", 0.0, {}) if return_confidence else "neutral"
+
+
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+#  9. MASTER TRAINING PIPELINE
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+
+def train_full_pipeline(
+    ravdess_path: Optional[str] = None,
+    crema_path:   Optional[str] = None,
+    save_path:    Optional[str] = None,
+    use_augmentation: bool = True,
+    use_grid_search:  bool = True,
+    apply_vad:        bool = True,
+    test_ratio:       float = 0.2,
+    cv_folds:         int   = 5,
+) -> Optional[str]:
+    """
+    End-to-end training pipeline. Calls all sub-functions in sequence.
+
+    Full pipeline:
+      load_dataset Ã¢â€ â€™ speaker_aware_split Ã¢â€ â€™ scale Ã¢â€ â€™ train_models
+      Ã¢â€ â€™ evaluate_models Ã¢â€ â€™ save_model
+
+    Args:
+        ravdess_path     : RAVDESS dataset directory.
+        crema_path       : CREMA-D dataset directory.
+        save_path        : Where to save the trained model.
+        use_augmentation : Apply 4Ãƒâ€” augmentation during loading.
+        use_grid_search  : Tune hyperparameters with GridSearchCV.
+        apply_vad        : Strip silence with VAD.
+        test_ratio       : Fraction of speakers held out for testing.
+        cv_folds         : Stratified K-Fold folds.
+
+    Returns:
+        Path to saved model, or None if training failed.
+    """
+    pipeline_start = time.time()
+
+    log.info("\n" + "Ã¢â€¢â€" + "Ã¢â€¢Â"*58 + "Ã¢â€¢â€”")
+    log.info("Ã¢â€¢â€˜   ARIES Ã¢â‚¬â€ Speech Emotion Recognition Training Pipeline  Ã¢â€¢â€˜")
+    log.info("Ã¢â€¢Å¡" + "Ã¢â€¢Â"*58 + "Ã¢â€¢Â")
+    log.info(f"  Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    log.info(f"  BASE_DIR   : {BASE_DIR}")
+    log.info(f"  DATA_DIR   : {DATA_DIR}")
+    log.info(f"  MODELS_DIR : {MODELS_DIR}")
+
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Step 1: Load dataset Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    log.info("\n[STEP 1/6] Loading dataset...")
+    try:
+        X, y_raw, speaker_ids = load_dataset(
+            ravdess_path=ravdess_path,
+            crema_path=crema_path,
+            use_augmentation=use_augmentation,
+            apply_vad=apply_vad,
+            random_state=RANDOM_STATE,
+        )
+    except Exception as exc:
+        log.error(f"Dataset loading failed: {exc}")
+        return None
 
     if len(X) == 0:
-        print("No data loaded. Check dataset paths.")
-        return
+        log.error("No samples loaded. Check dataset paths and file formats.")
+        return None
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y)
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Step 2: Encode labels Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    log.info("\n[STEP 2/6] Encoding labels...")
+    label_encoder = LabelEncoder()
+    y_encoded = label_encoder.fit_transform(y_raw)
+    log.info(f"  Classes: {list(label_encoder.classes_)}")
+    log.info(f"  Class counts: {dict(zip(*np.unique(y_encoded, return_counts=True)))}")
 
-    scaler = StandardScaler()
-    X_train_s = scaler.fit_transform(X_train)
-    X_test_s  = scaler.transform(X_test)
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Step 3: Speaker-aware train/test split Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    log.info("\n[STEP 3/6] Speaker-aware train/test split...")
+    X_train_raw, X_test_raw, y_train_enc, y_test_enc = speaker_aware_split(
+        X, y_encoded, speaker_ids, test_ratio=test_ratio
+    )
+    log.info(f"  Train: {X_train_raw.shape[0]} samples")
+    log.info(f"  Test : {X_test_raw.shape[0]} samples")
 
-    print(f"\n  Total samples:    {len(X)}")
-    print(f"  Features:         {X.shape[1]}")
-    print(f"  Training samples: {len(X_train)}")
-    print(f"  Test samples:     {len(X_test)}")
+    # Step 4: Scaling is handled inside each sklearn Pipeline to avoid CV leakage.
+    log.info("\n[STEP 4/6] Deferring StandardScaler fit to model pipelines...")
+    X_train = X_train_raw
+    X_test = X_test_raw
+    scaler = None
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Step 5: Train models Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    log.info("\n[STEP 5/6] Training models...")
+    results = train_models(
+        X_train=X_train,
+        y_train=y_train_enc,
+        label_encoder=label_encoder,
+        use_grid_search=use_grid_search,
+        cv_folds=cv_folds,
+    )
 
-    results = {}
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Step 6: Evaluate models Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    log.info("\n[STEP 6/6] Evaluating on held-out test set...")
+    results = evaluate_models(
+        results=results,
+        X_test=X_test,
+        y_test=y_test_enc,
+        label_encoder=label_encoder,
+        models_dir=save_path and os.path.dirname(save_path) or MODELS_DIR,
+    )
 
-    # Random Forest
-    print("\n  Training Random Forest (300 trees)...")
-    rf = RandomForestClassifier(n_estimators=300, random_state=42, n_jobs=-1)
-    rf.fit(X_train_s, y_train)
-    rf_pred = rf.predict(X_test_s)
-    results['Random Forest'] = (rf, accuracy_score(y_test, rf_pred), rf_pred)
-    print(f"  RF Accuracy: {accuracy_score(y_test, rf_pred)*100:.2f}%")
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Save best model Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    log.info("\n[SAVE] Saving best model...")
+    saved_path = save_model(
+        results=results,
+        scaler=scaler,
+        label_encoder=label_encoder,
+        feature_dim=X.shape[1],
+        save_path=save_path,
+    )
 
-    # SVM
-    print("\n  Training SVM...")
-    svm = SVC(kernel='rbf', C=10, gamma='scale', random_state=42, probability=True)
-    svm.fit(X_train_s, y_train)
-    svm_pred = svm.predict(X_test_s)
-    results['SVM'] = (svm, accuracy_score(y_test, svm_pred), svm_pred)
-    print(f"  SVM Accuracy: {accuracy_score(y_test, svm_pred)*100:.2f}%")
+    # Ã¢â€â‚¬Ã¢â€â‚¬ Final summary Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+    elapsed_total = time.time() - pipeline_start
+    best_name = max(results, key=lambda k: results[k].get("f1_macro", 0))
+    best      = results[best_name]
 
-    # MLP — fixed for Python 3.13
-    print("\n  Training MLP Neural Network...")
-    try:
-        le_mlp = LabelEncoder()
-        y_train_enc = le_mlp.fit_transform(y_train).astype(np.float64)
-        mlp = MLPClassifier(hidden_layer_sizes=(256, 128, 64),
-                            max_iter=500, random_state=42,
-                            early_stopping=False)
-        mlp.fit(X_train_s, y_train_enc)
-        mlp_pred_enc = mlp.predict(X_test_s).astype(int)
-        mlp_pred = le_mlp.inverse_transform(mlp_pred_enc)
-        mlp_acc = accuracy_score(y_test, mlp_pred)
-        results['MLP Neural Network'] = (mlp, mlp_acc, mlp_pred)
-        print(f"  MLP Accuracy: {mlp_acc*100:.2f}%")
-    except Exception as e:
-        print(f"  MLP skipped: {e}")
+    log.info("\n" + "Ã¢â€¢â€" + "Ã¢â€¢Â"*58 + "Ã¢â€¢â€”")
+    log.info("Ã¢â€¢â€˜              TRAINING COMPLETE                          Ã¢â€¢â€˜")
+    log.info("Ã¢â€¢Â " + "Ã¢â€¢Â"*58 + "Ã¢â€¢Â£")
+    log.info(f"Ã¢â€¢â€˜  Best model       : {best_name:<38}Ã¢â€¢â€˜")
+    log.info(f"Ã¢â€¢â€˜  CV Macro F1      : {best.get('cv_f1_macro', best['cv_acc'])*100:>5.2f}% Ã‚Â± {best['cv_std']*100:.2f}%{'':<28}Ã¢â€¢â€˜")
+    log.info(f"Ã¢â€¢â€˜  Test Accuracy    : {best.get('test_acc',0)*100:>5.2f}%{'':<38}Ã¢â€¢â€˜")
+    log.info(f"Ã¢â€¢â€˜  Interview Acc    : {best.get('mapped_acc',0)*100:>5.2f}% (4-class){'':<28}Ã¢â€¢â€˜")
+    log.info(f"Ã¢â€¢â€˜  F1 Macro         : {best.get('f1_macro',0)*100:>5.2f}%{'':<38}Ã¢â€¢â€˜")
+    log.info(f"Ã¢â€¢â€˜  Total time       : {elapsed_total/60:>5.1f} minutes{'':<35}Ã¢â€¢â€˜")
+    log.info(f"Ã¢â€¢â€˜  Saved to         : .../{os.path.basename(saved_path):<37}Ã¢â€¢â€˜")
+    log.info("Ã¢â€¢Å¡" + "Ã¢â€¢Â"*58 + "Ã¢â€¢Â\n")
 
-    # XGBoost
-    if HAS_XGB:
-        print("\n  Training XGBoost...")
-        le = LabelEncoder()
-        y_train_xgb = le.fit_transform(y_train)
-        xgb = XGBClassifier(n_estimators=300, learning_rate=0.1,
-                            random_state=42, eval_metric='mlogloss',
-                            verbosity=0)
-        xgb.fit(X_train_s, y_train_xgb)
-        xgb_pred_enc = xgb.predict(X_test_s)
-        xgb_pred = le.inverse_transform(xgb_pred_enc)
-        xgb_acc = accuracy_score(y_test, xgb_pred)
-        results['XGBoost'] = (xgb, xgb_acc, xgb_pred)
-        print(f"  XGB Accuracy: {xgb_acc*100:.2f}%")
+    return saved_path
 
-    # Select best
-    best_name = max(results, key=lambda k: results[k][1])
-    best_model, best_acc, best_pred = results[best_name]
 
-    y_test_mapped = np.array([INTERVIEW_MAP.get(e, e) for e in y_test])
-    best_pred_mapped = np.array([INTERVIEW_MAP.get(e, e) for e in best_pred])
-    mapped_acc = accuracy_score(y_test_mapped, best_pred_mapped)
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+#  CLI entry point
+# Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
 
-    print("\n" + "="*55)
-    print("  MODEL COMPARISON")
-    print("="*55)
-    for name, (_, acc, pred) in results.items():
-        pred_m = np.array([INTERVIEW_MAP.get(e, e) for e in pred])
-        m_acc = accuracy_score(y_test_mapped, pred_m)
-        marker = " BEST" if name == best_name else ""
-        print(f"  {name:<22} Raw: {acc*100:.2f}%  Mapped: {m_acc*100:.2f}%{marker}")
+def _parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(
+        description="ARIES Speech Emotion Recognition Ã¢â‚¬â€ train or predict",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python modules/emotion_model.py
+  python modules/emotion_model.py --no-augment --no-grid-search
+  python modules/emotion_model.py --predict recordings/test.wav
+  python modules/emotion_model.py --predict recordings/test.wav --confidence
+        """,
+    )
+    parser.add_argument(
+        "--predict",
+        type=str,
+        default=None,
+        help="Path to a .wav file to predict emotion (skips training)",
+    )
+    parser.add_argument(
+        "--confidence",
+        action="store_true",
+        help="Show confidence score in prediction output",
+    )
+    parser.add_argument(
+        "--no-augment",
+        action="store_true",
+        help="Disable audio augmentation (faster training)",
+    )
+    parser.add_argument(
+        "--no-grid-search",
+        action="store_true",
+        help="Skip GridSearchCV (faster training, slightly lower accuracy)",
+    )
+    parser.add_argument(
+        "--no-vad",
+        action="store_true",
+        help="Disable Voice Activity Detection",
+    )
+    parser.add_argument(
+        "--test-ratio",
+        type=float,
+        default=0.2,
+        help="Fraction of speakers held out for testing (default 0.2)",
+    )
+    parser.add_argument(
+        "--cv-folds",
+        type=int,
+        default=5,
+        help="Number of Stratified K-Fold folds (default 5)",
+    )
+    parser.add_argument(
+        "--model-path",
+        type=str,
+        default=None,
+        help="Override default model save/load path",
+    )
+    return parser.parse_args()
 
-    print(f"\n  Best Model:    {best_name}")
-    print(f"  Raw Accuracy:  {best_acc*100:.2f}%")
-    print(f"  Interview Acc: {mapped_acc*100:.2f}%")
-    print(classification_report(y_test_mapped, best_pred_mapped))
-
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    with open(save_path, 'wb') as f:
-        pickle.dump({
-            'model': best_model,
-            'scaler': scaler,
-            'model_name': best_name,
-            'raw_accuracy': best_acc,
-            'mapped_accuracy': mapped_acc,
-            'all_results': {k: v[1] for k, v in results.items()}
-        }, f)
-    print(f"\n  Model saved to {save_path}")
-    print("="*55)
-
-def predict_emotion(audio_path):
-    try:
-        model_path = os.path.join(MODELS_DIR, "emotion_model.pkl")
-        with open(model_path, "rb") as f:
-            saved = pickle.load(f)
-        model  = saved['model'] if isinstance(saved, dict) else saved
-        scaler = saved.get('scaler') if isinstance(saved, dict) else None
-        features = extract_features(audio_path)
-        if features is None:
-            return "neutral"
-        features = features.reshape(1, -1)
-        if scaler:
-            features = scaler.transform(features)
-        raw = model.predict(features)[0]
-        if isinstance(raw, (int, np.integer)):
-            elist = ['angry','calm','disgust','fearful','happy','neutral','sad','surprised']
-            raw = elist[raw] if raw < len(elist) else 'neutral'
-        return INTERVIEW_MAP.get(raw, 'neutral')
-    except Exception:
-        return "neutral"
 
 if __name__ == "__main__":
-    train_model()
+    args = _parse_args()
+
+    if args.predict is not None:
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Predict mode Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        log.info(f"PREDICT MODE: {args.predict}")
+        if args.confidence:
+            label, conf, probs = predict_emotion(
+                args.predict,
+                model_path=args.model_path,
+                return_confidence=True,
+            )
+            log.info(f"  Interview Emotion : {label.upper()}")
+            log.info(f"  Confidence        : {conf*100:.1f}%")
+            log.info("  All probabilities:")
+            for k, v in sorted(probs.items(), key=lambda x: -x[1]):
+                bar = "Ã¢â€“Ë†" * int(v * 20)
+                log.info(f"    {k:<12}: {v*100:5.1f}%  {bar}")
+        else:
+            label = predict_emotion(args.predict, model_path=args.model_path)
+            log.info(f"  Interview Emotion : {label.upper()}")
+            log.info(f"  Emotion Score     : {EMOTION_SCORES.get(label, 65)}")
+
+    else:
+        # Ã¢â€â‚¬Ã¢â€â‚¬ Training mode Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+        train_full_pipeline(
+            use_augmentation = not args.no_augment,
+            use_grid_search  = not args.no_grid_search,
+            apply_vad        = not args.no_vad,
+            test_ratio       = args.test_ratio,
+            cv_folds         = args.cv_folds,
+            save_path        = args.model_path,
+        )
+
+

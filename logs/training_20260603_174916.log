@@ -1,0 +1,22 @@
+17:49:16 | INFO     | 
+Ã¢â€¢â€Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢â€”
+17:49:16 | INFO     | Ã¢â€¢â€˜   ARIES Ã¢â‚¬â€ Speech Emotion Recognition Training Pipeline  Ã¢â€¢â€˜
+17:49:16 | INFO     | Ã¢â€¢Å¡Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
+17:49:16 | INFO     |   Started: 2026-06-03 17:49:16
+17:49:16 | INFO     |   BASE_DIR   : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator
+17:49:16 | INFO     |   DATA_DIR   : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\data
+17:49:16 | INFO     |   MODELS_DIR : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\models
+17:49:16 | INFO     | 
+[STEP 1/6] Loading dataset...
+17:49:16 | INFO     | ============================================================
+17:49:16 | INFO     | LOADING DATASET
+17:49:16 | INFO     |   RAVDESS : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\data\Audio_Speech_Actors_01-24
+17:49:16 | INFO     |   CREMA-D : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\data\CREMA-D
+17:49:16 | INFO     |   VAD     : True
+17:49:16 | INFO     |   Augment : True ['noise', 'pitch', 'stretch', 'volume']
+17:49:16 | INFO     | ============================================================
+17:49:16 | INFO     | RAVDESS: found 24 speakers, 1440 files
+17:49:17 | INFO     | CREMA-D: found 7442 .wav files, parsing...
+17:49:17 | INFO     | CREMA-D: found 91 speakers, 7442 files
+17:49:17 | INFO     | Total speakers: 115, Total files: 8882
+17:52:06 | INFO     |   Progress: 500/8882 original samples | 3/s | ~2847s remaining

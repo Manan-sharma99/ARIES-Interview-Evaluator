@@ -385,7 +385,7 @@ def load_models():
     from modules.nlp_evaluator import evaluate_answer
     from modules.fluency_analyzer import analyze_fluency
     from modules.scoring_engine import calculate_esi, generate_report
-    from modules.emotion_model import predict_emotion
+    from interview_evaluator.modules.emotion_model_legacy import predict_emotion
 
     return evaluate_answer, analyze_fluency, calculate_esi, generate_report, predict_emotion
 

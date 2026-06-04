@@ -1,0 +1,61 @@
+19:54:02 | INFO     | 
+╔══════════════════════════════════════════════════════════╗
+19:54:02 | INFO     | ║   ARIES — Speech Emotion Recognition Training Pipeline  ║
+19:54:02 | INFO     | ╚══════════════════════════════════════════════════════════╝
+19:54:02 | INFO     |   Started: 2026-06-03 19:54:02
+19:54:02 | INFO     |   BASE_DIR   : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator
+19:54:02 | INFO     |   DATA_DIR   : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\data
+19:54:02 | INFO     |   MODELS_DIR : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\models
+19:54:02 | INFO     | 
+[STEP 1/6] Loading dataset...
+19:54:02 | INFO     | ============================================================
+19:54:02 | INFO     | LOADING DATASET
+19:54:02 | INFO     |   RAVDESS : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\data\Audio_Speech_Actors_01-24
+19:54:02 | INFO     |   CREMA-D : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\data\CREMA-D
+19:54:02 | INFO     |   VAD     : True
+19:54:02 | INFO     |   Augment : False 
+19:54:02 | INFO     | ============================================================
+19:54:03 | INFO     | RAVDESS: found 24 speakers, 1440 files
+19:54:03 | INFO     | CREMA-D: found 7442 .wav files, parsing...
+19:54:03 | INFO     | CREMA-D: found 91 speakers, 7442 files
+19:54:03 | INFO     | Total speakers: 115, Total files: 8882
+19:54:03 | INFO     | [INFO] Building feature cache...
+19:54:03 | INFO     |   Parallel extraction : n_jobs=-1, backend=loky
+19:54:03 | INFO     |   Tasks queued        : 8882 original files
+19:54:49 | INFO     |   Processed 100/8882 files | 47s elapsed | 2.1 files/sec | ~4096s remaining
+19:55:13 | INFO     |   Processed 200/8882 files | 70s elapsed | 2.8 files/sec | ~3049s remaining
+22:55:29 | INFO     |   Processed 300/8882 files | 10886s elapsed | 0.0 files/sec | ~311419s remaining
+00:56:25 | INFO     |   Processed 400/8882 files | 18143s elapsed | 0.0 files/sec | ~384712s remaining
+00:56:55 | INFO     |   Processed 500/8882 files | 18172s elapsed | 0.0 files/sec | ~304633s remaining
+00:57:19 | INFO     |   Processed 600/8882 files | 18196s elapsed | 0.0 files/sec | ~251171s remaining
+00:57:39 | INFO     |   Processed 700/8882 files | 18217s elapsed | 0.0 files/sec | ~212925s remaining
+00:58:04 | INFO     |   Processed 800/8882 files | 18241s elapsed | 0.0 files/sec | ~184281s remaining
+00:58:21 | INFO     |   Processed 900/8882 files | 18259s elapsed | 0.0 files/sec | ~161933s remaining
+00:58:40 | INFO     |   Processed 1000/8882 files | 18277s elapsed | 0.1 files/sec | ~144061s remaining
+00:58:59 | INFO     |   Processed 1100/8882 files | 18296s elapsed | 0.1 files/sec | ~129434s remaining
+00:59:16 | INFO     |   Processed 1200/8882 files | 18313s elapsed | 0.1 files/sec | ~117236s remaining
+00:59:32 | INFO     |   Processed 1300/8882 files | 18329s elapsed | 0.1 files/sec | ~106903s remaining
+00:59:47 | INFO     |   Processed 1400/8882 files | 18344s elapsed | 0.1 files/sec | ~98038s remaining
+01:00:02 | INFO     |   Processed 1500/8882 files | 18359s elapsed | 0.1 files/sec | ~90352s remaining
+01:00:17 | INFO     |   Processed 1600/8882 files | 18374s elapsed | 0.1 files/sec | ~83625s remaining
+01:00:33 | INFO     |   Processed 1700/8882 files | 18390s elapsed | 0.1 files/sec | ~77691s remaining
+01:00:48 | INFO     |   Processed 1800/8882 files | 18405s elapsed | 0.1 files/sec | ~72414s remaining
+01:01:08 | INFO     |   Processed 1900/8882 files | 18426s elapsed | 0.1 files/sec | ~67709s remaining
+01:01:29 | INFO     |   Processed 2000/8882 files | 18447s elapsed | 0.1 files/sec | ~63475s remaining
+01:01:52 | INFO     |   Processed 2100/8882 files | 18469s elapsed | 0.1 files/sec | ~59646s remaining
+01:02:12 | INFO     |   Processed 2200/8882 files | 18490s elapsed | 0.1 files/sec | ~56158s remaining
+01:02:28 | INFO     |   Processed 2300/8882 files | 18506s elapsed | 0.1 files/sec | ~52958s remaining
+01:02:49 | INFO     |   Processed 2400/8882 files | 18526s elapsed | 0.1 files/sec | ~50036s remaining
+01:03:06 | INFO     |   Processed 2500/8882 files | 18543s elapsed | 0.1 files/sec | ~47337s remaining
+01:03:21 | INFO     |   Processed 2600/8882 files | 18558s elapsed | 0.1 files/sec | ~44840s remaining
+01:03:38 | INFO     |   Processed 2700/8882 files | 18575s elapsed | 0.1 files/sec | ~42529s remaining
+01:03:53 | INFO     |   Processed 2800/8882 files | 18591s elapsed | 0.2 files/sec | ~40381s remaining
+01:04:10 | INFO     |   Processed 2900/8882 files | 18607s elapsed | 0.2 files/sec | ~38382s remaining
+01:04:26 | INFO     |   Processed 3000/8882 files | 18623s elapsed | 0.2 files/sec | ~36514s remaining
+01:04:42 | INFO     |   Processed 3100/8882 files | 18639s elapsed | 0.2 files/sec | ~34765s remaining
+01:04:58 | INFO     |   Processed 3200/8882 files | 18655s elapsed | 0.2 files/sec | ~33124s remaining
+01:05:14 | INFO     |   Processed 3300/8882 files | 18671s elapsed | 0.2 files/sec | ~31582s remaining
+01:05:30 | INFO     |   Processed 3400/8882 files | 18687s elapsed | 0.2 files/sec | ~30130s remaining
+01:05:50 | INFO     |   Processed 3500/8882 files | 18707s elapsed | 0.2 files/sec | ~28766s remaining
+01:06:12 | INFO     |   Processed 3600/8882 files | 18729s elapsed | 0.2 files/sec | ~27479s remaining
+01:06:34 | INFO     |   Processed 3700/8882 files | 18751s elapsed | 0.2 files/sec | ~26261s remaining

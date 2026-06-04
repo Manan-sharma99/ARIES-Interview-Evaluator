@@ -1,0 +1,21 @@
+17:07:03 | INFO     | 
+â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+17:07:03 | INFO     | â•‘   ARIES â€” Speech Emotion Recognition Training Pipeline  â•‘
+17:07:03 | INFO     | â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+17:07:03 | INFO     |   Started: 2026-06-03 17:07:03
+17:07:03 | INFO     |   BASE_DIR   : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator
+17:07:03 | INFO     |   DATA_DIR   : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\data
+17:07:03 | INFO     |   MODELS_DIR : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\models
+17:07:03 | INFO     | 
+[STEP 1/6] Loading dataset...
+17:07:03 | INFO     | ============================================================
+17:07:03 | INFO     | LOADING DATASET
+17:07:03 | INFO     |   RAVDESS : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\data\Audio_Speech_Actors_01-24
+17:07:03 | INFO     |   CREMA-D : C:\Users\Manan Sharma\OneDrive\Documents\ai interview project\interview_evaluator\data\CREMA-D
+17:07:03 | INFO     |   VAD     : True
+17:07:03 | INFO     |   Augment : True ['noise', 'pitch', 'stretch', 'volume']
+17:07:03 | INFO     | ============================================================
+17:07:03 | INFO     | RAVDESS: found 24 speakers, 1440 files
+17:07:03 | INFO     | CREMA-D: found 7442 .wav files, parsing...
+17:07:03 | INFO     | CREMA-D: found 91 speakers, 7442 files
+17:07:03 | INFO     | Total speakers: 115, Total files: 8882

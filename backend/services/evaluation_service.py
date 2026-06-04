@@ -78,7 +78,7 @@ async def evaluate_audio_answer(
 
     temp_audio_path = await _save_upload_to_temp_file(audio_file)
     try:
-        from modules.emotion_model import predict_emotion
+        from interview_evaluator.modules.emotion_model_legacy import predict_emotion
         from modules.fluency_analyzer import analyze_fluency
         from modules.nlp_evaluator import evaluate_answer
         from modules.scoring_engine import generate_report

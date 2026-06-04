@@ -20,13 +20,13 @@ emotion_result = False
 emotion_accuracy = 0
 
 try:
-    from modules.emotion_model import load_dataset, INTERVIEW_MAP
+    from interview_evaluator.modules.emotion_model_legacy import load_dataset, INTERVIEW_MAP
     from sklearn.model_selection import train_test_split
     from sklearn.metrics import accuracy_score, classification_report
 
     if not os.path.exists("models/emotion_model.pkl"):
         print("⚠️  Model not found. Training now...")
-        from modules.emotion_model import train_model
+        from interview_evaluator.modules.emotion_model_legacy import train_model
         train_model("data/Audio_Speech_Actors_01-24", "models/emotion_model.pkl")
     else:
         print("✅ Trained model found at models/emotion_model.pkl")
