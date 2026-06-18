@@ -214,23 +214,44 @@ def _has_phrase(text: str, phrase: str) -> bool:
 
 
 def evaluate_relevance(question: str, user_answer: str) -> float:
-    """Returns relevance score in [0, 100]."""
+    """
+    Returns relevance score in [0, 100].
+
+    Path A (ideal answer exists): TF-IDF + keyword overlap — unchanged.
+    Path B (no ideal answer):     Semantic prototype fallback (70% semantic
+                                  cosine similarity + 30% TF-IDF vs question).
+                                  Shared helpers from nlp_evaluator ensure the
+                                  sentence model singleton is loaded only once.
+    """
     if not user_answer or len(user_answer.strip()) < 5:
         return 0.0
     ideal = IDEAL_ANSWERS.get(question, "")
-    # If no ideal answer exists, use a keyword-overlap heuristic only
     if ideal:
+        # ── Path A: ideal answer available — unchanged ────────────────────────
         sim_ideal    = _tfidf_similarity(user_answer, ideal)
         sim_question = _tfidf_similarity(user_answer, question)
         ideal_words  = set(ideal.lower().split())
         ans_words    = set(user_answer.lower().split())
         overlap      = len(ideal_words & ans_words) / max(len(ideal_words), 1)
         blended = sim_ideal * 0.55 + sim_question * 0.20 + overlap * 0.25
+        calibrated = min(1.0, blended * 3.2 + 0.20)
     else:
-        # Fallback: measure how well the answer stays on the topic of the question
-        sim_question = _tfidf_similarity(user_answer, question)
-        blended = sim_question * 0.75 + 0.10  # baseline 10 for attempting an answer
-    calibrated = min(1.0, blended * 3.2 + 0.20)
+        # ── Path B: no ideal answer — semantic prototype fallback ─────────────
+        # Reuse helpers from nlp_evaluator so the sentence model is a shared
+        # singleton (loaded once per process, not twice).
+        from modules.nlp_evaluator import (
+            _detect_question_type_simple,
+            _QUESTION_PROTOTYPES,
+            _semantic_similarity,
+        )
+        question_type = _detect_question_type_simple(question)
+        prototype     = _QUESTION_PROTOTYPES[question_type]
+        sem_sim       = _semantic_similarity(user_answer, prototype)   # [0, 1]
+        tfidf_sim     = _tfidf_similarity(user_answer, question)       # [0, 1]
+        blended       = sem_sim * 0.7 + tfidf_sim * 0.3
+        # Calibration matches nlp_evaluator: blended 0.40–0.80 → score 75–85 (strong)
+        #                                    blended ~0.00       → score ~15 (irrelevant)
+        calibrated    = min(1.0, blended * 1.5 + 0.15)
     return round(calibrated * 100, 2)
 
 
