@@ -1,117 +1,370 @@
-# ARIES – AI Recruitment & Interview Evaluation System
+# 🚀 ARIES — AI Interview Intelligence Platform
 
-## Overview
+> Transforming interview evaluation from subjective opinions into structured, AI-powered insights.
 
-ARIES (AI Recruitment & Interview Evaluation System) is an AI-powered Interview Intelligence Platform designed to evaluate candidates through speech analysis, emotion recognition, natural language processing, and behavioral assessment.
+ARIES is a multi-dimensional interview evaluation platform that analyzes **what candidates say, how they say it, and how effectively they communicate during an interview.**
 
-Most interview preparation tools focus only on whether an answer is correct. ARIES aims to go beyond content evaluation by analyzing how a candidate communicates, how confident they sound, how emotionally stable they remain under questioning, and how effectively they respond during an interview.
+Unlike traditional interview practice tools that focus only on answer correctness, ARIES evaluates:
 
-The long-term goal of ARIES is to transform traditional interview assessment into a data-driven process that combines Speech Processing, Natural Language Processing, Machine Learning, and Large Language Models.
+- 🧠 Semantic Relevance
+- ⭐ STAR Framework Usage
+- 👤 Ownership & Responsibility
+- 📈 Impact & Results
+- 🔬 Technical Depth
+- 📑 Evidence & Specificity
+- 🎙️ Fluency & Speech Quality
+- 😊 Emotion & Confidence Signals
 
----
-
-## Why This Project Exists
-
-During interviews, recruiters evaluate much more than technical knowledge.
-
-Candidates are often judged on:
-
-- Confidence
-- Communication skills
-- Emotional stability
-- Clarity of speech
-- Relevance of answers
-- Ability to handle follow-up questions
-
-However, these evaluations are often subjective and depend heavily on the interviewer.
-
-ARIES was created to explore how Artificial Intelligence can provide a more objective and consistent interview assessment framework.
-
-Rather than functioning as a simple Speech Emotion Recognition project, ARIES is being developed as a complete Interview Intelligence Platform capable of evaluating multiple dimensions of candidate performance.
+The goal is to simulate how real recruiters evaluate candidates while providing actionable feedback for improvement.
 
 ---
 
-## Current Capabilities
+# 🎯 Why ARIES?
 
-ARIES currently includes four major subsystems:
+Most interview platforms answer only one question:
 
-### 1. Speech Emotion Recognition
+> "Was the answer correct?"
 
-Analyzes candidate audio responses and predicts emotional states using machine learning.
-
-The system currently evaluates emotions using acoustic features extracted from speech recordings.
-
-### 2. NLP-Based Answer Evaluation
-
-Uses Sentence-BERT embeddings to compare candidate responses against ideal answers.
-
-This allows semantic similarity scoring instead of simple keyword matching.
-
-### 3. Speech Processing Pipeline
-
-Uses OpenAI Whisper for speech-to-text transcription.
-
-Audio responses are automatically converted into text before evaluation.
-
-### 4. AI Follow-Up Question Generation
-
-Generates context-aware interview follow-up questions using Gemini.
-
-Instead of asking generic questions, the system analyzes candidate responses and creates relevant probing questions similar to those asked by real interviewers.
-
----
-
-## Project Evolution
-
-ARIES originally started as a Speech Emotion Recognition project.
-
-As development progressed, several limitations became apparent.
-
-Emotion classification alone could not provide meaningful interview feedback.
-
-A candidate may sound nervous but still provide excellent answers.
-
-Similarly, a confident candidate may provide poor technical responses.
-
-Because of this, the project evolved toward a larger vision:
+Real interviewers evaluate much more:
 
 ```text
-Speech Emotion Recognition
-            ↓
-Interview Intelligence Platform
+Technical Knowledge
+        +
+Communication
+        +
+Ownership
+        +
+Impact
+        +
+Confidence
+        +
+Structure
+        +
+Evidence
 ```
 
-Future versions will combine:
+A technically correct answer can still perform poorly if it lacks clarity, ownership, measurable impact, or structured storytelling.
 
-- Emotion Analysis
-- Speaking Rate Analysis
-- Pause Analysis
-- Confidence Scoring
-- NLP Evaluation
-- Fluency Analysis
-- AI Follow-Up Generation
-
-to produce comprehensive interview assessments.
+ARIES was built to bridge this gap.
 
 ---
 
-## Current Dataset
+# 🏗️ Architecture Evolution
 
-To improve robustness and speaker diversity, ARIES uses multiple public emotion datasets.
+## ARIES v1
+
+```text
+Question
+    ↓
+NLP Evaluation
+    ↓
+Fluency Analysis
+    ↓
+Emotion Detection
+    ↓
+Final Score
+```
+
+---
+
+## ARIES v2
+
+```text
+Question
+    ↓
+Question Type Detection
+    ↓
+ARIES Evaluator
+    ├─ Semantic Relevance
+    ├─ STAR Analysis
+    ├─ Ownership Analysis
+    ├─ Impact Analysis
+    ├─ Technical Depth Analysis
+    └─ Evidence Analysis
+    ↓
+Fluency Analysis
+    ↓
+Emotion Analysis
+    ↓
+Dynamic Scoring Engine
+    ↓
+Recruiter Feedback
+    ↓
+Candidate Coaching
+    ↓
+Final Assessment
+```
+
+---
+
+# ✨ Current Capabilities
+
+## 🧠 Semantic Relevance Analysis
+
+Evaluates whether answers actually address the interview question.
+
+Uses:
+
+- Sentence-BERT
+- Semantic Similarity
+- Question-Type Awareness
+
+---
+
+## ⭐ STAR Framework Evaluation
+
+Measures answer quality using:
+
+```text
+Situation
+Task
+Action
+Result
+```
+
+Identifies missing components and provides improvement suggestions.
+
+---
+
+## 👤 Ownership Analysis
+
+Detects whether candidates clearly communicate:
+
+```text
+I built
+I designed
+I implemented
+I led
+```
+
+rather than hiding behind:
+
+```text
+We worked on
+The team did
+```
+
+---
+
+## 📈 Impact Assessment
+
+Identifies measurable outcomes:
+
+```text
+Reduced latency by 40%
+Saved $50K annually
+Improved throughput by 450%
+```
+
+---
+
+## 🔬 Technical Depth Evaluation
+
+Rewards implementation details, engineering decisions, and architecture discussions.
+
+Recognizes:
+
+- FastAPI
+- Docker
+- Redis
+- PostgreSQL
+- Transformers
+- Sentence-BERT
+- Whisper
+- Feature Engineering
+- Caching
+- Parallel Processing
+
+and many other technical concepts.
+
+---
+
+## 📑 Evidence Analysis
+
+Rewards:
+
+- Examples
+- Supporting details
+- Quantified results
+- Specific implementation decisions
+
+---
+
+## 🎙️ Speech & Fluency Analysis
+
+Evaluates:
+
+- Filler words
+- Speaking rate
+- Word count
+- Communication quality
+
+---
+
+## 😊 Emotion Analysis
+
+Analyzes vocal emotion using machine learning models trained on:
 
 ### RAVDESS
 
 - 24 Speakers
-- 1440 Audio Recordings
+- 1,440 Audio Samples
 
 ### CREMA-D
 
 - 91 Speakers
-- 7442 Audio Recordings
+- 7,442 Audio Samples
 
 ### Combined Dataset
 
-- 115 Speakers
-- 8882 Audio Samples
+```text
+115 Speakers
+8,882 Audio Samples
+```
 
-This scale provides significantly greater speaker diversity than many academic and student emotion-recognition projects.
+---
+
+# 📊 Dynamic Scoring System
+
+Instead of producing a single arbitrary score, ARIES generates:
+
+### Communication
+
+```text
+Fluency
++
+Speech Rate
++
+Confidence Language
+```
+
+### Technical Competency
+
+```text
+Relevance
++
+Technical Depth
++
+Evidence
++
+Impact
+```
+
+### Confidence
+
+```text
+Ownership
++
+Emotion
++
+Language Confidence
+```
+
+### Interview Readiness
+
+```text
+STAR
++
+Ownership
++
+Impact
++
+Evidence
++
+Relevance
+```
+
+---
+
+# 👨‍💼 Recruiter Mode
+
+ARIES generates recruiter-style insights:
+
+```text
+STRENGTH (Technical)
+
+RISK (Structure)
+
+RISK (Evidence)
+
+FOLLOW-UP REQUIRED
+```
+
+---
+
+# 🎯 Candidate Coaching Mode
+
+ARIES provides actionable feedback:
+
+```text
+Missing Situation
+
+Missing Result
+
+Need More Evidence
+
+Need More Technical Detail
+
+Need More Quantified Impact
+```
+
+---
+
+# 🌐 Platform
+
+### Backend
+
+- FastAPI
+- OpenAPI / Swagger
+- REST API
+
+### AI Stack
+
+- Python
+- Sentence-BERT
+- Whisper
+- Gemini
+- Scikit-Learn
+
+### Frontend
+
+- Streamlit (Current)
+- Next.js Frontend (Planned)
+
+---
+
+# 📈 Project Evolution
+
+```text
+Speech Emotion Recognition
+            ↓
+Interview Evaluator
+            ↓
+Interview Intelligence Platform
+```
+
+---
+
+# 🛣️ Roadmap
+
+- [x] Emotion Recognition
+- [x] Semantic Relevance Evaluation
+- [x] STAR Analysis
+- [x] Ownership Detection
+- [x] Impact Analysis
+- [x] Technical Depth Analysis
+- [x] Evidence Analysis
+- [x] FastAPI Backend
+- [ ] Public Deployment
+- [ ] Next.js Frontend
+- [ ] Recruiter Dashboard
+- [ ] Progress Tracking
+- [ ] Human Validation Study
+
+---
+
+# 📌 Status
+
+**Active Development**
+
+ARIES is currently evolving into a full AI-powered interview intelligence platform designed to help candidates improve and help recruiters evaluate more consistently.
