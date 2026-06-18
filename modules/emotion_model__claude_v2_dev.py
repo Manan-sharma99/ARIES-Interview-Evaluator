@@ -46,6 +46,8 @@ import pickle
 import json
 import warnings
 import argparse
+import threading
+from contextlib import contextmanager
 from datetime import datetime
 from collections import Counter
 from typing import Dict, List, Optional, Tuple
@@ -65,6 +67,7 @@ from sklearn.model_selection import (
     StratifiedKFold,
     GridSearchCV,
     cross_val_score,
+    ParameterGrid,
 )
 from sklearn.metrics import (
     accuracy_score,
@@ -78,6 +81,7 @@ from sklearn.metrics import (
 # Parallel(n_jobs=-1, backend="loky") spawns one worker process per CPU core.
 # delayed() wraps the target function so joblib can serialise it for IPC.
 from joblib import Parallel, delayed
+import joblib.parallel
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  Third-party — optional (graceful fallback if not installed)
@@ -986,7 +990,138 @@ def speaker_aware_split(
 #  5. MODEL TRAINING  (RF, SVM, XGBoost, LightGBM + GridSearchCV)
 # ═════════════════════════════════════════════════════════════════════════════
 
-def _build_model_configs(label_encoder: LabelEncoder) -> Dict:
+def _count_param_combinations(param_grid: Dict) -> int:
+    """Return the number of GridSearchCV parameter combinations."""
+    return len(ParameterGrid(param_grid)) if param_grid else 1
+
+
+def _format_minutes(seconds: float) -> str:
+    """Format seconds as minutes for progress logs."""
+    return f"{seconds / 60:.1f} min"
+
+
+def _eta_confidence(completed_fits: int, total_fits: int) -> str:
+    """Return ETA confidence from the fraction of completed fits."""
+    if total_fits <= 0:
+        return "Low"
+    pct_done = completed_fits / total_fits
+    if pct_done < 0.10:
+        return "Low"
+    if pct_done <= 0.50:
+        return "Medium"
+    return "High"
+
+
+def _log_grid_search_workload_summary(
+    model_name: str,
+    X_train: np.ndarray,
+    param_grid: Dict,
+    grid_cv_folds: int,
+) -> int:
+    """Log the GridSearchCV workload before fitting starts."""
+    param_combinations = _count_param_combinations(param_grid)
+    total_fits = param_combinations * grid_cv_folds
+
+    log.info("=" * 60)
+    log.info("MODEL TRAINING ESTIMATE")
+    log.info("=" * 60)
+    log.info("")
+    log.info(f"Model                 : {model_name}")
+    log.info(f"Training Samples      : {X_train.shape[0]}")
+    log.info(f"Features              : {X_train.shape[1]}")
+    log.info("")
+    log.info(f"Parameter Combinations: {param_combinations}")
+    log.info(f"CV Folds              : {grid_cv_folds}")
+    log.info(f"Total Fits            : {total_fits}")
+    log.info("")
+    log.info("=" * 60)
+
+    if model_name == "XGBoost" and len(X_train) > 20000:
+        log.warning("")
+        log.warning("WARNING:")
+        log.warning("Large dataset detected.")
+        log.warning("Grid search may take several hours.")
+        log.warning("Consider:")
+        log.warning("--no-grid-search")
+        log.warning("or")
+        log.warning("--fast-xgb")
+        log.warning("")
+
+    return total_fits
+
+
+class _GridSearchProgressLogger:
+    """Track completed GridSearchCV fit tasks from joblib's parent process."""
+
+    def __init__(self, total_fits: int) -> None:
+        self.total_fits = total_fits
+        self.completed_fits = 0
+        self.start_time = time.time()
+        self._lock = threading.Lock()
+
+    def update(self, completed_now: int) -> None:
+        with self._lock:
+            updates_to_log = min(completed_now, self.total_fits - self.completed_fits)
+            for _ in range(updates_to_log):
+                self.completed_fits += 1
+                elapsed = time.time() - self.start_time
+                average_fit_time = elapsed / self.completed_fits
+                remaining_fits = max(0, self.total_fits - self.completed_fits)
+                estimated_remaining = average_fit_time * remaining_fits
+                confidence = _eta_confidence(self.completed_fits, self.total_fits)
+
+                log.info("")
+                log.info(f"Completed Fits      : {self.completed_fits} / {self.total_fits}")
+                log.info(f"Elapsed Time        : {_format_minutes(elapsed)}")
+                log.info(f"Average Fit         : {average_fit_time:.1f} sec")
+                log.info(f"Estimated Remaining : {_format_minutes(estimated_remaining)}")
+                log.info(f"ETA Confidence      : {confidence}")
+                log.info("")
+
+
+@contextmanager
+def _track_grid_search_progress(total_fits: int):
+    """Patch joblib's completion callback while a GridSearchCV fit is running."""
+    if total_fits <= 0:
+        yield
+        return
+
+    progress = _GridSearchProgressLogger(total_fits)
+    original_callback = joblib.parallel.BatchCompletionCallBack
+
+    class _ProgressBatchCompletionCallBack(original_callback):
+        def __call__(self, *args, **kwargs):
+            result = super().__call__(*args, **kwargs)
+            progress.update(getattr(self, "batch_size", 1))
+            return result
+
+    joblib.parallel.BatchCompletionCallBack = _ProgressBatchCompletionCallBack
+    try:
+        yield
+    finally:
+        joblib.parallel.BatchCompletionCallBack = original_callback
+
+
+def _log_model_timing_summary(
+    model_name: str,
+    grid_search_sec: float,
+    outer_cv_sec: float,
+    evaluation_sec: float,
+    total_sec: float,
+) -> None:
+    """Log timing after a model has completed training and evaluation."""
+    log.info("-" * 60)
+    log.info("Model Completed")
+    log.info("-" * 60)
+    log.info(f"Model           : {model_name}")
+    log.info(f"Grid Search     : {grid_search_sec / 60:.1f} min")
+    log.info(f"Outer CV        : {outer_cv_sec / 60:.1f} min")
+    log.info(f"Evaluation      : {evaluation_sec:.1f} sec")
+    log.info(f"Total           : {total_sec / 60:.1f} min")
+    log.info("-" * 60)
+
+
+def _build_model_configs(label_encoder: LabelEncoder, xgb_only: bool = False) -> Dict:
     """
     Build a dict of model_name → (estimator, param_grid).
 
@@ -1004,25 +1139,28 @@ def _build_model_configs(label_encoder: LabelEncoder) -> Dict:
     configs: Dict = {}
 
     # ── Random Forest ────────────────────────────────────────────────────────
-    configs["Random Forest"] = (
-        RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1),
-        {
-            "n_estimators":      [200, 400],
-            "max_depth":         [None, 30],
-            "min_samples_split": [2, 5],
-            "max_features":      ["sqrt", "log2"],
-        },
-    )
+    if not xgb_only:
+        configs["Random Forest"] = (
+            RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1,
+                                   class_weight="balanced"),
+            {
+                "n_estimators":      [200, 400],
+                "max_depth":         [None, 30],
+                "min_samples_split": [2, 5],
+                "max_features":      ["sqrt", "log2"],
+            },
+        )
 
     # ── SVM ─────────────────────────────────────────────────────────────────
-    configs["SVM"] = (
-        SVC(kernel="rbf", probability=True, random_state=RANDOM_STATE,
-            class_weight="balanced"),
-        {
-            "C":     [1, 10, 50],
-            "gamma": ["scale", "auto"],
-        },
-    )
+    if not xgb_only:
+        configs["SVM"] = (
+            SVC(kernel="rbf", probability=True, random_state=RANDOM_STATE,
+                class_weight="balanced"),
+            {
+                "C":     [1, 10, 50],
+                "gamma": ["scale", "auto"],
+            },
+        )
 
     # ── XGBoost ─────────────────────────────────────────────────────────────
     if HAS_XGB:
@@ -1047,7 +1185,7 @@ def _build_model_configs(label_encoder: LabelEncoder) -> Dict:
         log.warning("XGBoost not installed — skipping. pip install xgboost")
 
     # ── LightGBM ─────────────────────────────────────────────────────────────
-    if HAS_LGB:
+    if (not xgb_only) and HAS_LGB:
         configs["LightGBM"] = (
             lgb.LGBMClassifier(
                 objective="multiclass",
@@ -1063,7 +1201,7 @@ def _build_model_configs(label_encoder: LabelEncoder) -> Dict:
                 "max_depth":     [-1, 10],
             },
         )
-    else:
+    elif not xgb_only:
         log.warning("LightGBM not installed — skipping. pip install lightgbm")
 
     return configs
@@ -1075,6 +1213,7 @@ def train_models(
     label_encoder: LabelEncoder,
     use_grid_search: bool = True,
     cv_folds: int = 5,
+    xgb_only: bool = False,
 ) -> Dict:
     """
     Train all configured models and return a results dict.
@@ -1095,6 +1234,7 @@ def train_models(
         label_encoder  : Fitted LabelEncoder (to decode predictions).
         use_grid_search: Run GridSearchCV (slow but optimal).
         cv_folds       : Number of outer CV folds.
+        xgb_only       : Train only XGBoost when True.
 
     Returns:
         results dict:
@@ -1113,27 +1253,50 @@ def train_models(
     log.info(f"  Outer CV folds: {cv_folds}")
     log.info("=" * 60)
 
-    model_configs = _build_model_configs(label_encoder)
+    model_configs = _build_model_configs(label_encoder, xgb_only=xgb_only)
+    if not model_configs:
+        log.error("No model configs available. Install xgboost or disable --xgb-only.")
+        return {}
+
     skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=RANDOM_STATE)
     results: Dict = {}
+    grid_cv_folds = 3
 
     for model_name, (estimator, param_grid) in model_configs.items():
         log.info(f"\n── Training: {model_name} ──")
         t0 = time.time()
+        grid_elapsed = 0.0
 
         if use_grid_search and len(param_grid) > 0:
-            log.info(f"  Running GridSearchCV (inner cv=3)...")
+            total_fits = _log_grid_search_workload_summary(
+                model_name=model_name,
+                X_train=X_train,
+                param_grid=param_grid,
+                grid_cv_folds=grid_cv_folds,
+            )
+
+            log.info(f"  Running GridSearchCV (inner cv={grid_cv_folds})...")
+            grid_start = time.time()
             grid_search = GridSearchCV(
                 estimator=estimator,
                 param_grid=param_grid,
-                cv=3,                   # inner loop — fast
+                cv=grid_cv_folds,       # inner loop — fast
                 scoring="accuracy",
                 n_jobs=-1,
-                verbose=0,
+                verbose=3,
                 refit=True,             # refit best estimator on all train data
             )
-            grid_search.fit(X_train, y_train)
+            with _track_grid_search_progress(total_fits):
+                grid_search.fit(X_train, y_train)
+            grid_elapsed = time.time() - grid_start
             best_estimator = grid_search.best_estimator_
+            if model_name == "XGBoost":
+                log.info("")
+                log.info("Grid Search Complete")
+                log.info("")
+                log.info(f"Elapsed Time : {grid_elapsed/60:.1f} min")
+                log.info(f"Best Params  : {grid_search.best_params_}")
+                log.info(f"Best CV Acc  : {grid_search.best_score_*100:.2f}%")
             log.info(f"  Best params : {grid_search.best_params_}")
             log.info(f"  Best CV acc : {grid_search.best_score_*100:.2f}%")
         else:
@@ -1143,10 +1306,12 @@ def train_models(
 
         # ── Outer Stratified K-Fold cross-validation ─────────────────────────
         log.info(f"  Running {cv_folds}-fold outer CV for unbiased estimate...")
+        outer_cv_start = time.time()
         cv_scores = cross_val_score(
             best_estimator, X_train, y_train,
             cv=skf, scoring="accuracy", n_jobs=-1
         )
+        outer_cv_elapsed = time.time() - outer_cv_start
         cv_acc = float(np.mean(cv_scores))
         cv_std = float(np.std(cv_scores))
 
@@ -1158,6 +1323,9 @@ def train_models(
             "model":  best_estimator,
             "cv_acc": cv_acc,
             "cv_std": cv_std,
+            "grid_search_sec": grid_elapsed,
+            "outer_cv_sec": outer_cv_elapsed,
+            "train_sec": elapsed,
         }
 
     return results
@@ -1211,6 +1379,7 @@ def evaluate_models(
         model = info["model"]
         log.info(f"\n── {model_name} ──")
 
+        model_eval_start = time.time()
         y_pred_enc = model.predict(X_test)
 
         # XGBoost returns float by default — convert back to int
@@ -1265,6 +1434,15 @@ def evaluate_models(
             "confusion_matrix": cm,
             "y_pred_str":      y_pred_str,
         })
+        model_evaluation_sec = time.time() - model_eval_start
+        results[model_name]["evaluation_sec"] = model_evaluation_sec
+        _log_model_timing_summary(
+            model_name=model_name,
+            grid_search_sec=info.get("grid_search_sec", 0.0),
+            outer_cv_sec=info.get("outer_cv_sec", 0.0),
+            evaluation_sec=model_evaluation_sec,
+            total_sec=info.get("train_sec", 0.0) + model_evaluation_sec,
+        )
 
         eval_rows.append({
             "Model":       model_name,
@@ -1571,6 +1749,7 @@ def train_full_pipeline(
     test_ratio:       float = 0.2,
     cv_folds:         int   = 5,
     rebuild_cache:    bool  = False,  # Task 3 — bypass cache when True
+    xgb_only:         bool  = False,
 ) -> Optional[str]:
     """
     End-to-end training pipeline. Calls all sub-functions in sequence.
@@ -1589,6 +1768,7 @@ def train_full_pipeline(
         test_ratio       : Fraction of speakers held out for testing.
         cv_folds         : Stratified K-Fold folds.
         rebuild_cache    : If True, ignore existing cache and re-extract.
+        xgb_only         : Train only XGBoost when True.
 
     Returns:
         Path to saved model, or None if training failed.
@@ -1605,6 +1785,7 @@ def train_full_pipeline(
 
     # ── Step 1: Load dataset ─────────────────────────────────────────────────
     log.info("\n[STEP 1/6] Loading dataset...")
+    feature_loading_start = time.time()
     try:
         X, y_raw, speaker_ids = load_dataset(
             ravdess_path=ravdess_path,
@@ -1616,6 +1797,7 @@ def train_full_pipeline(
     except Exception as exc:
         log.error(f"Dataset loading failed: {exc}")
         return None
+    feature_loading_sec = time.time() - feature_loading_start
 
     if len(X) == 0:
         log.error("No samples loaded. Check dataset paths and file formats.")
@@ -1646,16 +1828,25 @@ def train_full_pipeline(
 
     # ── Step 5: Train models ─────────────────────────────────────────────────
     log.info("\n[STEP 5/6] Training models...")
+    log.info("[INFO] Using balanced class weights")
+    training_start = time.time()
     results = train_models(
         X_train=X_train,
         y_train=y_train_enc,
         label_encoder=label_encoder,
         use_grid_search=use_grid_search,
         cv_folds=cv_folds,
+        xgb_only=xgb_only,
     )
+    training_sec = time.time() - training_start
 
     # ── Step 6: Evaluate models ──────────────────────────────────────────────
+    if not results:
+        log.error("Training produced no models; aborting evaluation and save.")
+        return None
+
     log.info("\n[STEP 6/6] Evaluating on held-out test set...")
+    test_eval_start = time.time()
     results = evaluate_models(
         results=results,
         X_test=X_test,
@@ -1665,6 +1856,8 @@ def train_full_pipeline(
     )
 
     # ── Save best model ──────────────────────────────────────────────────────
+    test_evaluation_sec = time.time() - test_eval_start
+
     log.info("\n[SAVE] Saving best model...")
     saved_path = save_model(
         results=results,
@@ -1676,6 +1869,17 @@ def train_full_pipeline(
 
     # ── Final summary ────────────────────────────────────────────────────────
     elapsed_total = time.time() - pipeline_start
+    log.info("")
+    log.info("=" * 60)
+    log.info("PIPELINE SUMMARY")
+    log.info("=" * 60)
+    log.info(f"Feature Loading : {feature_loading_sec:.1f} sec")
+    log.info(f"Training        : {training_sec/60:.1f} min")
+    log.info(f"Evaluation      : {test_evaluation_sec:.1f} sec")
+    log.info("")
+    log.info(f"Total Runtime   : {elapsed_total/60:.1f} min")
+    log.info("=" * 60)
+
     best_name = max(results, key=lambda k: results[k].get("mapped_acc", 0))
     best      = results[best_name]
 
@@ -1742,6 +1946,11 @@ Examples:
         help="Skip GridSearchCV (faster training, slightly lower accuracy)",
     )
     parser.add_argument(
+        "--xgb-only",
+        action="store_true",
+        help="Train only XGBoost; skip Random Forest, SVM, and LightGBM",
+    )
+    parser.add_argument(
         "--no-vad",
         action="store_true",
         help="Disable Voice Activity Detection",
@@ -1799,5 +2008,6 @@ if __name__ == "__main__":
             test_ratio       = args.test_ratio,
             cv_folds         = args.cv_folds,
             save_path        = args.model_path,
+            xgb_only         = args.xgb_only,
             rebuild_cache    = args.rebuild_cache,  # Task 3: CLI → pipeline
         )

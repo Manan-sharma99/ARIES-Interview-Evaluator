@@ -13,6 +13,9 @@ from backend.schemas.evaluation import (
 
 SUPPORTED_AUDIO_EXTENSIONS = {".wav", ".mp3", ".m4a", ".webm", ".ogg", ".flac", ".mp4"}
 
+# Use the new ARIES evaluator in the API path
+from modules.aries_evaluator import evaluate_answer as aries_evaluate
+
 
 def evaluate_text_answer(payload: TextEvaluationRequest) -> TextEvaluationResponse:
     """
@@ -30,10 +33,20 @@ def evaluate_text_answer(payload: TextEvaluationRequest) -> TextEvaluationRespon
         raise ValueError("Answer is required for evaluation.")
 
     from modules.fluency_analyzer import analyze_fluency
-    from modules.nlp_evaluator import evaluate_answer
     from modules.scoring_engine import generate_report
 
-    nlp = evaluate_answer(question, answer)
+    # Run ARIES evaluator (replaces legacy modules.nlp_evaluator.evaluate_answer)
+    aries_result = aries_evaluate(question, answer)
+
+    # Preserve original NLP-style fields for backward compatibility
+    nlp = {
+        "relevance_score": aries_result.get("relevance_score"),
+        "sentiment": aries_result.get("sentiment"),
+        "sentiment_score": aries_result.get("sentiment_score"),
+        "confidence_score": aries_result.get("confidence_score"),
+        "word_count": aries_result.get("word_count"),
+    }
+
     fluency = analyze_fluency(answer)
     emotion = "neutral"
     report = generate_report(
@@ -43,6 +56,7 @@ def evaluate_text_answer(payload: TextEvaluationRequest) -> TextEvaluationRespon
         relevance=nlp["relevance_score"],
         fluency=fluency["fluency_score"],
         sentiment=nlp["sentiment_score"],
+        aries_scores=aries_result,
     )
 
     return TextEvaluationResponse(
@@ -80,15 +94,24 @@ async def evaluate_audio_answer(
     try:
         from interview_evaluator.modules.emotion_model_legacy import predict_emotion
         from modules.fluency_analyzer import analyze_fluency
-        from modules.nlp_evaluator import evaluate_answer
         from modules.scoring_engine import generate_report
         from modules.whisper_stt import transcribe_audio
-
         transcript = transcribe_audio(temp_audio_path).strip()
         if not transcript:
             raise ValueError("No speech was detected in the uploaded audio.")
 
-        nlp = evaluate_answer(question, transcript)
+        # Use ARIES evaluator for audio transcript
+        aries_result = aries_evaluate(question, transcript)
+
+        # Preserve original NLP-style fields for backward compatibility
+        nlp = {
+            "relevance_score": aries_result.get("relevance_score"),
+            "sentiment": aries_result.get("sentiment"),
+            "sentiment_score": aries_result.get("sentiment_score"),
+            "confidence_score": aries_result.get("confidence_score"),
+            "word_count": aries_result.get("word_count"),
+        }
+
         fluency = analyze_fluency(transcript)
         emotion = predict_emotion(temp_audio_path) or "neutral"
         report = generate_report(
@@ -98,6 +121,10 @@ async def evaluate_audio_answer(
             relevance=nlp["relevance_score"],
             fluency=fluency["fluency_score"],
             sentiment=nlp["sentiment_score"],
+            aries_scores=aries_result,
+            fluency_details={
+                "word_count": nlp.get("word_count"),
+            },
         )
 
         scores = report["scores"]

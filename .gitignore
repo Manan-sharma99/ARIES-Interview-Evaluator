@@ -8,3 +8,20 @@ models/
 *.wav
 .env
 __pycache__/
+
+# Training logs
+logs/
+
+# Feature caches
+data/cache/
+
+# Trained models
+models/*.pkl
+models/*.joblib
+
+# Python
+__pycache__/
+*.pyc
+
+# Large generated files
+*.npz

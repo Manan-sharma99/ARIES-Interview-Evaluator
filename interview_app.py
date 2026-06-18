@@ -738,6 +738,8 @@ def evaluate_current_question():
         st.session_state.question_results.append(result)
     else:
         st.session_state.question_results[existing] = result
+    if result.get("aries_failed"):
+        st.info("ARIES analyzer unavailable - using legacy scoring fallback for this answer.")
     st.success("Question evaluated. Review scorecards below or move to the next question.")
 
 
@@ -1048,27 +1050,48 @@ def render_live_interview():
     current_result = next((item for item in st.session_state.question_results if item["question"] == current_question), None)
     if current_result:
         st.markdown("<div style='height:1rem;'></div>", unsafe_allow_html=True)
-        cols = st.columns(5)
-        with cols[0]:
-            metric_card("Relevance", f"{current_result['scores']['relevance']:.0f}", "Question alignment", THEME["primary"])
-        with cols[1]:
-            metric_card("Confidence", f"{current_result['scores'].get('confidence', 70):.0f}", "From emotion", THEME["primary_2"])
-        with cols[2]:
-            metric_card("Fluency", f"{current_result['scores']['fluency']:.0f}", "Pace and fillers", THEME["success"])
-        with cols[3]:
-            metric_card("Emotion", current_result["emotion"].title(), "Detected voice state", THEME["warning"])
-        with cols[4]:
-            metric_card("Final Score", f"{current_result['scores']['final']:.0f}", current_result["grade_label"], THEME["danger"])
+        top_metrics = st.columns(6)
+        with top_metrics[0]:
+            metric_card("Question Type", current_result.get("question_type", "n/a").title(), "Detected by ARIES", THEME["primary"])
+        with top_metrics[1]:
+            metric_card("Communication", f"{current_result['scores'].get('communication', 0):.0f}", "Fluency, rate, fillers", THEME["primary_2"])
+        with top_metrics[2]:
+            metric_card("Technical", f"{current_result['scores'].get('technical_competency', 0):.0f}", "Relevance and depth", THEME["success"])
+        with top_metrics[3]:
+            metric_card("Confidence", f"{current_result['scores'].get('confidence_category', current_result['scores'].get('confidence', 0)):.0f}", "Ownership and emotion", THEME["warning"])
+        with top_metrics[4]:
+            metric_card("Readiness", f"{current_result['scores'].get('interview_readiness', 0):.0f}", "STAR and evidence", THEME["danger"])
+        with top_metrics[5]:
+            metric_card("Overall", f"{current_result['scores']['final']:.0f}", current_result["grade_label"], THEME["primary"])
 
-        feedback_cols = st.columns(2)
+        detail_metrics = st.columns(5)
+        with detail_metrics[0]:
+            metric_card("STAR", f"{current_result.get('star_score', 0):.0f}", "Story structure", THEME["primary"])
+        with detail_metrics[1]:
+            metric_card("Ownership", f"{current_result.get('ownership_score', 0):.0f}", "Individual contribution", THEME["primary_2"])
+        with detail_metrics[2]:
+            metric_card("Impact", f"{current_result.get('impact_score', 0):.0f}", "Results delivered", THEME["success"])
+        with detail_metrics[3]:
+            metric_card("Tech Depth", f"{current_result.get('technical_depth_score', 0):.0f}", "Specificity of approach", THEME["warning"])
+        with detail_metrics[4]:
+            metric_card("Evidence", f"{current_result.get('evidence_score', 0):.0f}", "Concrete examples", THEME["danger"])
+
+        feedback_cols = st.columns(3)
         with feedback_cols[0]:
-            panel_start("Strengths")
-            for item in current_result["feedback"]["strengths"] or ["No major strengths detected yet."]:
-                st.markdown(f"- {item}")
+            panel_start("Summary")
+            st.markdown(f"- Emotion: `{current_result['emotion']}`")
+            st.markdown(f"- Speech rate score: `{current_result.get('speech_rate_score', 0):.0f}`")
+            st.markdown(f"- Filler score: `{current_result.get('filler_score', 0):.0f}`")
+            st.markdown(f"- Confidence language: `{current_result.get('confidence_language_score', 0):.0f}`")
             panel_end()
         with feedback_cols[1]:
-            panel_start("Improve Next")
-            items = current_result["feedback"]["improvements"] + current_result["fluency_feedback"][:2]
+            panel_start("Recruiter Feedback")
+            for item in current_result.get("recruiter_feedback", []) or current_result["feedback"]["strengths"] or ["No recruiter feedback available."]:
+                st.markdown(f"- {item}")
+            panel_end()
+        with feedback_cols[2]:
+            panel_start("Candidate Feedback")
+            items = current_result.get("candidate_feedback", []) or (current_result["feedback"]["improvements"] + current_result["fluency_feedback"][:2])
             for item in items or ["No issues flagged for this answer."]:
                 st.markdown(f"- {item}")
             panel_end()
@@ -1115,6 +1138,27 @@ def render_final_report():
             """,
             unsafe_allow_html=True,
         )
+        st.caption(
+            f"Question Type: {result.get('question_type', 'n/a').title()} | "
+            f"Communication: {result['scores'].get('communication', 0):.0f} | "
+            f"Technical Competency: {result['scores'].get('technical_competency', 0):.0f} | "
+            f"Confidence: {result['scores'].get('confidence_category', result['scores'].get('confidence', 0)):.0f} | "
+            f"Interview Readiness: {result['scores'].get('interview_readiness', 0):.0f}"
+        )
+        st.caption(
+            f"STAR: {result.get('star_score', 0):.0f} | Ownership: {result.get('ownership_score', 0):.0f} | "
+            f"Impact: {result.get('impact_score', 0):.0f} | Technical Depth: {result.get('technical_depth_score', 0):.0f} | "
+            f"Evidence: {result.get('evidence_score', 0):.0f}"
+        )
+        detail_cols = st.columns(2)
+        with detail_cols[0]:
+            st.markdown("**Recruiter Feedback**")
+            for item in result.get("recruiter_feedback", []) or ["No recruiter feedback available."]:
+                st.markdown(f"- {item}")
+        with detail_cols[1]:
+            st.markdown("**Candidate Feedback**")
+            for item in result.get("candidate_feedback", []) or ["No candidate feedback available."]:
+                st.markdown(f"- {item}")
     panel_end()
 
     actions = st.columns([1, 1, 1.2])
@@ -1455,6 +1499,8 @@ def _companion_analyze():
         "tip":      _companion_emotion_tip(result["emotion"]),
     }
     st.session_state.companion_log.append(entry)
+    if result.get("aries_failed"):
+        st.info("ARIES analyzer unavailable - using legacy scoring fallback for this answer.")
     # Clear via shadow buffers — widget keys are NOT touched
     st.session_state["_companion_transcript_buf"] = ""
     st.session_state["_companion_question_buf"]   = ""

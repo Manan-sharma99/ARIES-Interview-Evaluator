@@ -68,6 +68,16 @@ def run_evaluation(
     nlp = nlp_evaluate(question, transcript)
     nlp_relevance = float(nlp.get("relevance_score", 0))
 
+    aries_result = None
+    aries_failed = False
+    aries_error = None
+    try:
+        from modules.aries_evaluator import evaluate_answer as aries_evaluate
+        aries_result = aries_evaluate(question, transcript)
+    except Exception as exc:
+        aries_failed = True
+        aries_error = str(exc)
+
     # ── 2. AI evaluation — fallback to NLP-only on any failure ───────────────
     ai_relevance = nlp_relevance   # safe default
     ai_scores    = None
@@ -121,6 +131,8 @@ def run_evaluation(
         fluency_score,
         float(nlp.get("sentiment_score", 50)),
         ai_scores=ai_scores,
+        aries_scores=aries_result,
+        fluency_details=fluency,
     )
 
     # ── 8. Build result record ───────────────────────────────────────────────
@@ -140,5 +152,24 @@ def run_evaluation(
         "ai_structure":     report.get("ai_structure", 0),
         "ai_depth":         report.get("ai_depth", 0),
         "ai_failed":        ai_failed,             # flag for UI warning
+        "aries_used":       report.get("aries_used", False),
+        "aries_failed":     aries_failed,
+        "aries_error":      aries_error,
+        "question_type":    report.get("question_type"),
+        "score_weights":    report.get("score_weights", {}),
+        "score_breakdown":  report.get("score_breakdown", {}),
+        "recruiter_feedback": report.get("recruiter_feedback", []),
+        "candidate_feedback": report.get("candidate_feedback", []),
+        "star_score":       report.get("star_score", 0),
+        "ownership_score":  report.get("ownership_score", 0),
+        "impact_score":     report.get("impact_score", 0),
+        "technical_depth_score": report.get("technical_depth_score", 0),
+        "evidence_score":   report.get("evidence_score", 0),
+        "speech_rate_score": report.get("speech_rate_score", 0),
+        "filler_score":     report.get("filler_score", 0),
+        "confidence_language_score": report.get("confidence_language_score", 0),
+        "emotion_score":    report.get("emotion_score", confidence),
+        "words_per_minute": float(fluency.get("words_per_minute", 0)),
+        "filler_count":     int(fluency.get("filler_count", 0)),
         "mode":             "interview",
     }
